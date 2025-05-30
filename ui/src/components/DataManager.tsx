@@ -5,6 +5,10 @@ import DataForm from './DataForm';
 interface Column {
   key: string;
   label: string;
+  type?: string;
+  options?: Array<{value: string; label: string}>;
+  required?: boolean;
+  placeholder?: string;
 }
 
 interface DataManagerProps {
@@ -20,7 +24,18 @@ interface DataManagerProps {
 }
 
 // Define field configurations for different item types
-const getFormFields = (itemType: string): Array<{ name: string; label: string; type: string; placeholder?: string; required?: boolean; options?: Array<{value: string; label: string}> }> => {
+const getFormFields = (itemType: string, columns?: Column[]): Array<{ name: string; label: string; type: string; placeholder?: string; required?: boolean; options?: Array<{value: string; label: string}> }> => {
+  if (itemType === 'asset' && columns && columns.every(col => col.type)) {
+    return columns.map(col => ({
+      name: col.key,
+      label: col.label,
+      type: col.type || 'text',
+      options: col.options,
+      required: col.required,
+      placeholder: col.placeholder
+    }));
+  }
+  
   switch (itemType) {
     case 'expense':
       return [
@@ -70,7 +85,16 @@ const DataManager: React.FC<DataManagerProps> = ({
   renderRow,
   darkMode
 }) => {
-  const formFields = getFormFields(itemType);
+  const formFields = (itemType === 'asset' && columns.every(col => col.type)) 
+    ? columns.map(col => ({
+        name: col.key,
+        label: col.label,
+        type: col.type || 'text',
+        options: col.options,
+        required: col.type !== 'select',
+        placeholder: col.type === 'number' ? '0' : `Enter ${col.label.toLowerCase()}`
+      })) 
+    : getFormFields(itemType);
 
   const handleAddItem = () => {
     const modalTitle = `Add New ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}`;

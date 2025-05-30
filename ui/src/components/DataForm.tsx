@@ -35,8 +35,20 @@ const DataForm: React.FC<DataFormProps> = ({
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+
+    // Prepare data, converting numeric types
+    const processedFormData = { ...formData };
+    fields.forEach(field => {
+      if (field.type === 'number' && processedFormData[field.name] !== undefined) {
+        const numValue = parseFloat(processedFormData[field.name]);
+        processedFormData[field.name] = isNaN(numValue) ? undefined : numValue; // Or some other default like 0
+      }
+      // Ensure empty select values are handled if necessary (e.g., sent as empty string or undefined)
+      // For now, they will be sent as empty strings if selected, which is fine for the backend string fields.
+    });
+
     try {
-      await onSubmit(formData);
+      await onSubmit(processedFormData);
       // If onSubmit is successful, the modal will likely be closed by the parent component
     } catch (err: any) {
       setError(err.message || 'Failed to save data. Please try again.');

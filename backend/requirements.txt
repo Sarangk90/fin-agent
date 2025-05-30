@@ -3,3 +3,7 @@
 # flask
 # fastapi
 # uvicorn 
+
+fastapi==0.111.0
+uvicorn[standard]==0.29.0 # [standard] includes performance extras like uvloop
+pydantic==2.7.1 
