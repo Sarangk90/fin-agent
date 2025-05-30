@@ -26,10 +26,6 @@ interface DashboardProps {
   totalAssets: number;
   totalLiabilities: number;
   totalAnnualExpenses: number;
-  totalAnnualNeeds: number;
-  totalAnnualWants: number;
-  assets: any[];
-  expenses: any[];
   darkMode: boolean;
 }
 
@@ -43,12 +39,45 @@ const formatCurrency = (amount: number, currency = 'INR') => {
 };
 
 const Dashboard: React.FC<DashboardProps> = ({
+  netWorth,
+  totalAssets,
+  totalLiabilities,
+  totalAnnualExpenses,
   darkMode
 }) => {
   return (
-    <div className={`w-full h-full p-10 ${darkMode ? 'bg-red-700' : 'bg-blue-700'} bg-orange-500`}>
-      <h1 className="text-4xl text-white">Test: Does this fill the space?</h1>
-      <p className="text-white">DarkMode: {darkMode.toString()}</p>
+    <div className={`p-6 ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+      <h2 className={`text-2xl font-semibold mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Overview</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <DashboardCard 
+          title="Net Worth" 
+          value={formatCurrency(netWorth)} 
+          icon={DollarSign} 
+          colorClass="green" 
+          darkMode={darkMode} 
+        />
+        <DashboardCard 
+          title="Total Assets" 
+          value={formatCurrency(totalAssets)} 
+          icon={TrendingUp} 
+          colorClass="blue" 
+          darkMode={darkMode} 
+        />
+        <DashboardCard 
+          title="Total Liabilities" 
+          value={formatCurrency(totalLiabilities)} 
+          icon={TrendingDown} 
+          colorClass="red" 
+          darkMode={darkMode} 
+        />
+        <DashboardCard 
+          title="Annual Expenses" 
+          value={formatCurrency(totalAnnualExpenses)} 
+          icon={ShoppingCart} 
+          colorClass="yellow" 
+          darkMode={darkMode} 
+        />
+      </div>
     </div>
   );
 };

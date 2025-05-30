@@ -21,9 +21,9 @@ const Layout: React.FC<LayoutProps> = ({ children, darkMode /*, toggleDarkMode *
   // const darkMode = false; // Remove hardcoded value, use prop
 
   return (
-    <div className={`flex min-h-screen ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-800'} bg-pink-500`}>
+    <div className={`flex min-h-screen ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-800'}`}>
       {/* Sidebar Navigation */}
-      <aside className={`w-64 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md flex flex-col bg-yellow-300`}>
+      <aside className={`w-64 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md flex flex-col`}>
         <div className={`p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <h1 className={`text-2xl font-bold text-center ${darkMode ? 'text-white' : 'text-gray-900'}`}>Financial Agent</h1>
         </div>
@@ -57,15 +57,15 @@ const Layout: React.FC<LayoutProps> = ({ children, darkMode /*, toggleDarkMode *
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 w-full flex flex-col bg-green-300">
-        <header className={`${darkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white shadow'} p-4 bg-blue-300`}>
+      <div className="flex-1 w-full flex flex-col">
+        <header className={`${darkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white shadow'} p-4`}>
           <div className="flex justify-between items-center">
             <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {navItems.find(item => item.path === location.pathname)?.label || 'Page'}
             </h2>
           </div>
         </header>
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-purple-300">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
           {children}
         </main>
       </div>
