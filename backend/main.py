@@ -1,15 +1,25 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
 
-app = FastAPI()
+# Import the new assets router
+from app.api.assets_router import router as assets_api_router
+# from app.db.database import engine # For later when we have DB models
+# from app.models import asset_models # If your ORM models are also Pydantic
+
+# If you have base SQLAlchemy models to create:
+# asset_models.Base.metadata.create_all(bind=engine) # Example
+
+app = FastAPI(
+    title="Financial Agent API",
+    description="API for managing personal finance data.",
+    version="0.1.0"
+)
 
 # CORS configuration
 origins = [
-    "http://localhost",         # Allow your local development URL
-    "http://localhost:3000",    # Common React dev port
-    "http://localhost:5173",    # Added your Vite/frontend dev port
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:5173", # Your frontend dev port
     # Add any other origins your frontend might be served from
 ]
 
@@ -21,41 +31,22 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# Pydantic model for Asset data (optional but good practice for request body validation)
-class AssetIn(BaseModel):
-    name: str
-    valueINR: float
-    assetClass: str         # E.g., Cash, Equity, Debt, Real Estate, Commodities
-    assetType: str          # E.g., Savings Account, Stocks, FD, Residential Property (was "Asset Sub Class")
-    fpAssetClass: str       # E.g., Emergency Fund, Retirement, Goal-Specific
+# Include the assets API router
+app.include_router(assets_api_router)
 
-class AssetOut(AssetIn):
-    id: str
+# You can add other routers here as your application grows
+# For example, for liabilities, expenses, etc.
+# from app.api.liabilities_router import router as liabilities_api_router
+# app.include_router(liabilities_api_router)
 
-# Dummy data (will be replaced by database later)
-# Ensure dummy data matches the new model structure
-dummy_assets_db: List[AssetOut] = [
-    AssetOut(id="1", name="Fixed Deposit", valueINR=50000, assetClass="Debt", assetType="Fixed Deposit (FD)", fpAssetClass="General Investment / Wealth Creation"),
-    AssetOut(id="2", name="Reliance Shares", valueINR=120000, assetClass="Equity", assetType="Stocks (Direct Equity)", fpAssetClass="General Investment / Wealth Creation")
-]
-next_id = 3
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Financial Agent API! Visit /docs for API documentation."}
 
-@app.get("/api/assets", response_model=List[AssetOut])
-async def get_assets():
-    return dummy_assets_db
-
-@app.post("/api/assets", response_model=AssetOut, status_code=201)
-async def create_asset(asset: AssetIn):
-    global next_id
-    print("Received data:", asset.model_dump())
-    new_asset = AssetOut(id=str(next_id), **asset.model_dump())
-    dummy_assets_db.append(new_asset)
-    next_id += 1
-    return new_asset
-
-# To run this app: uvicorn main:app --reload --port 5001
-# Add this to your main block if you want to run it with python main.py directly
-# (though uvicorn command is standard for development)
+# To run this app: uvicorn backend.main:app --reload --port 5001
+# (The if __name__ block can also be used, but uvicorn command is standard for dev)
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5001) 
+    # It's better to run with `uvicorn backend.main:app --reload` for development
+    # The main:app string refers to the module and the app instance
+    uvicorn.run("main:app", host="0.0.0.0", port=5001, reload=True) 
