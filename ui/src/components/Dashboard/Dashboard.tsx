@@ -1,5 +1,6 @@
 import React from 'react';
-import { DollarSign, TrendingUp, TrendingDown, ShoppingCart, ShieldCheck, Heart } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, ShoppingCart } from 'lucide-react';
+import styles from './Dashboard.module.scss';
 
 interface DashboardCardProps {
   title: string;
@@ -9,19 +10,21 @@ interface DashboardCardProps {
   darkMode: boolean;
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ title, value, icon: Icon, colorClass = "blue", darkMode }) => (
-  <div className={`${darkMode ? 'bg-gray-800 shadow-slate-700' : 'bg-white shadow-slate-200'} p-6 rounded-xl shadow-md transition-all hover:shadow-lg hover:-translate-y-1`}>
-    <div className="flex items-center justify-between mb-4">
-      <h3 className={`text-md font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{title}</h3>
-      <div className={`p-2.5 rounded-lg bg-opacity-20 ${
-        darkMode 
-          ? `bg-${colorClass}-500 text-${colorClass}-300` 
-          : `bg-${colorClass}-100 text-${colorClass}-600`
-      }`}>
+const DashboardCard: React.FC<DashboardCardProps> = ({ 
+  title, 
+  value, 
+  icon: Icon, 
+  colorClass = 'blue', 
+  darkMode 
+}) => (
+  <div className={`${styles.card} ${styles[colorClass]} ${darkMode ? styles.dark : styles.light}`}>
+    <div className={styles.cardHeader}>
+      <h3 className={styles.cardTitle}>{title}</h3>
+      <div className={styles.cardIcon}>
         <Icon size={20} />
       </div>
     </div>
-    <p className={`text-2xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{value}</p>
+    <p className={styles.cardValue}>{value}</p>
   </div>
 );
 
@@ -50,9 +53,9 @@ const Dashboard: React.FC<DashboardProps> = ({
   darkMode
 }) => {
   return (
-    <div className={`${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-      <h2 className={`text-3xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Overview</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+    <div className={`${styles.dashboard} ${darkMode ? styles.dark : styles.light}`}>
+      <h2 className={styles.title}>Overview</h2>
+      <div className={styles.cardsGrid}>
         <DashboardCard 
           title="Net Worth" 
           value={formatCurrency(netWorth)} 

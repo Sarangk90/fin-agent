@@ -1,0 +1,172 @@
+.dashboard {
+  padding: 2rem 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  transition: color 0.3s ease, background-color 0.3s ease;
+
+  &.dark {
+    color: #e2e8f0;
+    background-color: #1a202c;
+  }
+
+  &.light {
+    color: #2d3748;
+    background-color: #f7fafc;
+  }
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  transition: color 0.3s ease;
+
+  .dark & {
+    color: #ffffff;
+  }
+
+  .light & {
+    color: #1a202c;
+  }
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.card {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    z-index: 2;
+  }
+
+  &.blue::before { background-color: #3b82f6; }
+  &.green::before { background-color: #10b981; }
+  &.red::before { background-color: #ef4444; }
+  &.yellow::before { background-color: #f59e0b; }
+  &.purple::before { background-color: #8b5cf6; }
+  &.pink::before { background-color: #ec4899; }
+
+  .dark & {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .light & {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.cardTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+  transition: color 0.3s ease;
+
+  .dark & {
+    color: #a0aec0;
+  }
+
+  .light & {
+    color: #718096;
+  }
+}
+
+.cardIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+
+  .card:hover & {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  .blue & { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+  .green & { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+  .red & { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+  .yellow & { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+  .purple & { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+  .pink & { background-color: rgba(236, 72, 153, 0.1); color: #ec4899; }
+}
+
+.cardValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  transition: color 0.3s ease;
+
+  .dark & {
+    color: #ffffff;
+  }
+
+  .light & {
+    color: #1a202c;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) {
+  .cardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard {
+    padding: 1.5rem 1rem;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+}

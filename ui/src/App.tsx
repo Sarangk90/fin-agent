@@ -9,13 +9,13 @@ import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken }
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, setLogLevel } from 'firebase/firestore';
 import { DollarSign, TrendingUp, TrendingDown, Home, CreditCard, Settings, PlusCircle, Edit3, Trash2, AlertTriangle, CheckCircle, ShoppingCart, Briefcase, Heart, Car, BookOpen, ShieldCheck, Users, Sun, Moon, BarChart3, X } from 'lucide-react';
 import { Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Dashboard from './components/Dashboard';
+import Layout from './components/Layout/Layout';
+import Dashboard from './components/Dashboard/Dashboard';
 import ExpensesManager from './components/ExpensesManager';
-import AssetsManager from './components/AssetsManager';
+import AssetsManager from './components/AssetsManager/AssetsManager';
 import LiabilitiesManager from './components/LiabilitiesManager';
 import ProfileSettings from './components/ProfileSettings';
-import Modal from './components/Modal';
+import Modal from './components/Modal/Modal';
 
 // --- Configuration ---
 const LOCAL_DEV_MODE = true;

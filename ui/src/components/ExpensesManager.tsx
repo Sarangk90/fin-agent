@@ -1,5 +1,5 @@
 import React from 'react';
-import DataManager from './DataManager';
+import DataManager from './DataManager/DataManager';
 
 interface Expense {
   id: string;

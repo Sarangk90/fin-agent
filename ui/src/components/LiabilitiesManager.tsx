@@ -1,5 +1,5 @@
 import React from 'react';
-import DataManager from './DataManager';
+import DataManager from './DataManager/DataManager';
 
 interface Liability {
   id: string;
@@ -7,7 +7,7 @@ interface Liability {
   valueINR: number;
   interestRate?: number;
   termYears?: number;
-  [key: string]: string | number | undefined;
+  [key: string]: string | number | undefined; 
 }
 
 interface LiabilitiesManagerProps {

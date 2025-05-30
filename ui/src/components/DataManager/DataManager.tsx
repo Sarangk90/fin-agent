@@ -1,6 +1,6 @@
 import React from 'react';
 import { PlusCircle, Edit3, Trash2, Briefcase } from 'lucide-react';
-import DataForm from './DataForm';
+import DataForm from '../AssetsManager/DataForm';
 
 interface Column {
   key: string;
@@ -19,8 +19,9 @@ interface DataManagerProps {
   deleteData: (collection: string, id: string) => Promise<void>;
   openModal: (content: React.ReactNode, title?: string) => void;
   columns: Column[];
-  renderRow: (item: any, columns: Column[]) => React.ReactNode;
+  renderRow?: (item: any, columns: Column[]) => React.ReactNode;
   darkMode: boolean;
+  editMode?: boolean;
 }
 
 // Define field configurations for different item types
@@ -171,7 +172,15 @@ const DataManager: React.FC<DataManagerProps> = ({
             <tbody className={`${darkMode ? 'divide-y divide-gray-700' : 'divide-y divide-gray-200'}`}>
               {items.map(item => (
                 <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                  {renderRow(item, columns)}
+                  {renderRow ? (
+                    renderRow(item, columns)
+                  ) : (
+                    columns.map(col => (
+                      <td key={col.key} className="py-3 px-2 sm:px-4 whitespace-nowrap">
+                        {item[col.key] || '-'}
+                      </td>
+                    ))
+                  )}
                   <td className="py-3 px-2 sm:px-4 text-right whitespace-nowrap">
                     <button
                       onClick={() => handleEditItem(item)}
