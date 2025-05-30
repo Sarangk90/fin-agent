@@ -10,14 +10,18 @@ interface DashboardCardProps {
 }
 
 const DashboardCard: React.FC<DashboardCardProps> = ({ title, value, icon: Icon, colorClass = "blue", darkMode }) => (
-  <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-lg transition-all hover:shadow-xl`}>
-    <div className="flex items-center justify-between mb-3">
-      <h3 className={`text-lg font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{title}</h3>
-      <div className={`p-2 rounded-full bg-${colorClass}-100 dark:bg-${colorClass}-900/50 text-${colorClass}-500 dark:text-${colorClass}-300`}>
-        <Icon size={24} />
+  <div className={`${darkMode ? 'bg-gray-800 shadow-slate-700' : 'bg-white shadow-slate-200'} p-6 rounded-xl shadow-md transition-all hover:shadow-lg hover:-translate-y-1`}>
+    <div className="flex items-center justify-between mb-4">
+      <h3 className={`text-md font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{title}</h3>
+      <div className={`p-2.5 rounded-lg bg-opacity-20 ${
+        darkMode 
+          ? `bg-${colorClass}-500 text-${colorClass}-300` 
+          : `bg-${colorClass}-100 text-${colorClass}-600`
+      }`}>
+        <Icon size={20} />
       </div>
     </div>
-    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{value}</p>
+    <p className={`text-2xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{value}</p>
   </div>
 );
 
@@ -46,9 +50,9 @@ const Dashboard: React.FC<DashboardProps> = ({
   darkMode
 }) => {
   return (
-    <div className={`p-6 ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-      <h2 className={`text-2xl font-semibold mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Overview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className={`${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+      <h2 className={`text-3xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Overview</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
         <DashboardCard 
           title="Net Worth" 
           value={formatCurrency(netWorth)} 
