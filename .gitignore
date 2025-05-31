@@ -7,6 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Python
+__pycache__/
+*/*/__pycache__/
+
+
+*/*/*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
 */.venv
 node_modules
 dist
