@@ -1,6 +1,6 @@
 import React from 'react';
 import { Edit3, Trash2 } from 'lucide-react';
-import DataManager from './DataManager';
+import DataManager from './DataManager/DataManager';
 
 interface Asset {
   id: string;
