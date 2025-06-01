@@ -38,14 +38,63 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
   darkMode 
 }) => {
   const columns = useMemo(() => [
-    { key: 'name', label: 'Name' },
-    { key: 'valueINR', label: 'Value (INR)' },
-    { key: 'assetClass', label: 'Class' },
-    { key: 'assetType', label: 'Type' },
-    { key: 'fpAssetClass', label: 'FP Class' },
+    { key: 'name', label: 'Name', type: 'text', required: true, placeholder: 'e.g., Savings Account' },
+    { key: 'valueINR', label: 'Value (INR)', type: 'number', required: true, placeholder: '0' },
+    { 
+      key: 'assetClass', 
+      label: 'Class', 
+      type: 'select', 
+      required: true,
+      options: [
+        { value: 'Cash / Cash Equivalent', label: 'Cash / Cash Equivalent' },
+        { value: 'Equity', label: 'Equity' },
+        { value: 'Debt', label: 'Debt' },
+        { value: 'Real Estate', label: 'Real Estate' },
+        { value: 'Commodities', label: 'Commodities' },
+        { value: 'Alternatives', label: 'Alternatives' },
+        { value: 'Other', label: 'Other' },
+      ] 
+    },
+    { 
+      key: 'assetType', 
+      label: 'Type', 
+      type: 'select', 
+      required: true,
+      options: [
+        { value: 'Savings Account', label: 'Savings Account' },
+        { value: 'Fixed Deposit (FD)', label: 'Fixed Deposit (FD)' },
+        { value: 'Recurring Deposit (RD)', label: 'Recurring Deposit (RD)' },
+        { value: 'Stocks (Direct Equity)', label: 'Stocks (Direct Equity)' },
+        { value: 'Equity Mutual Fund', label: 'Equity Mutual Fund' },
+        { value: 'Debt Mutual Fund', label: 'Debt Mutual Fund' },
+        { value: 'PPF / EPF / NPS', label: 'PPF / EPF / NPS' },
+        { value: 'Bonds', label: 'Bonds' },
+        { value: 'Residential Property', label: 'Residential Property' },
+        { value: 'Commercial Property', label: 'Commercial Property' },
+        { value: 'Land', label: 'Land' },
+        { value: 'Physical Gold / Silver', label: 'Physical Gold / Silver' },
+        { value: 'SGB (Sovereign Gold Bond)', label: 'SGB (Sovereign Gold Bond)' },
+        { value: 'Cryptocurrency', label: 'Cryptocurrency' },
+        { value: 'Other Sub Class', label: 'Other Sub Class' },
+      ] 
+    },
+    { 
+      key: 'fpAssetClass', 
+      label: 'FP Class', 
+      type: 'select', 
+      required: true,
+      options: [
+        { value: 'Emergency Fund', label: 'Emergency Fund' },
+        { value: 'Retirement', label: 'Retirement' },
+        { value: 'Goal-Specific', label: 'Goal-Specific' },
+        { value: 'General Investment / Wealth Creation', label: 'General Investment / Wealth Creation' },
+        { value: 'Tax Saving', label: 'Tax Saving' },
+        { value: 'Other', label: 'Other' },
+      ] 
+    },
   ], []);
 
-  const renderRow = (item: Asset, cols: { key: string; label: string }[]) => {
+  const renderRow = (item: Asset, cols: { key: string; label: string; type?: string }[]) => {
     return cols.map(col => (
       <td key={col.key} className={`${styles.cell} ${col.key === 'valueINR' ? styles.currency : ''}`}>
         {col.key === 'valueINR' ? formatCurrency(item[col.key] as number) : item[col.key] || '-'}
@@ -53,129 +102,18 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     ));
   };
 
-  const renderHeader = (cols: { key: string; label: string }[]) => {
-    return cols.map(col => (
-      <th key={col.key} className={styles.header}>
-        {col.label}
-      </th>
-    ));
-  };
-
-  const renderActions = (item: Asset) => (
-    <div className={styles.actions}>
-      <button
-        className={`${styles.actionButton} ${darkMode ? styles.editButtonDark : styles.editButtonLight}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          openModal(
-            <DataManager
-              title="Edit Asset"
-              items={[item]}
-              itemType="asset"
-              saveData={saveData}
-              deleteData={deleteData}
-              openModal={openModal}
-              columns={columns}
-              renderRow={renderRow}
-              darkMode={darkMode}
-              editMode={true}
-            />
-          );
-        }}
-        aria-label={`Edit ${item.name}`}
-      >
-        <Edit3 size={18} />
-      </button>
-      <button
-        className={`${styles.actionButton} ${darkMode ? styles.deleteButtonDark : styles.deleteButtonLight}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (window.confirm(`Are you sure you want to delete ${item.name}?`)) {
-            deleteData('asset', item.id);
-          }
-        }}
-        aria-label={`Delete ${item.name}`}
-      >
-        <Trash2 size={18} />
-      </button>
-    </div>
-  );
-
   return (
-    <div className={`${styles.assetsManager} ${darkMode ? 'dark' : 'light'}`}>
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              {renderHeader(columns)}
-              <th className={styles.header} style={{ width: '100px' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {assets.length > 0 ? (
-              assets.map((item) => (
-                <tr 
-                  key={item.id} 
-                  className={styles.row}
-                  onClick={() => {
-                    openModal(
-                      <DataManager
-                        title="Edit Asset"
-                        items={[item]}
-                        itemType="asset"
-                        saveData={saveData}
-                        deleteData={deleteData}
-                        openModal={openModal}
-                        columns={columns}
-                        editMode={true}
-                        darkMode={darkMode}
-                      />
-                    );
-                  }}
-                >
-                  {renderRow(item, columns)}
-                  <td className={styles.cell}>
-                    {renderActions(item)}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={columns.length + 1} className={styles.emptyState}>
-                  <div className={styles.emptyStateContent}>
-                    <Briefcase size={48} className={styles.emptyStateIcon} />
-                    <h3>No assets found</h3>
-                    <p>Get started by adding your first asset</p>
-                    <button 
-                      className={`${styles.addButton} ${darkMode ? styles.addButtonDark : styles.addButtonLight}`}
-                      onClick={() => {
-                        openModal(
-                          <DataManager
-                            title="Add New Asset"
-                            items={[{}]}
-                            itemType="asset"
-                            saveData={saveData}
-                            deleteData={deleteData}
-                            openModal={openModal}
-                            columns={columns}
-                            renderRow={renderRow}
-                            darkMode={darkMode}
-                            editMode={false}
-                          />
-                        );
-                      }}
-                    >
-                      <PlusCircle size={18} style={{ marginRight: '8px' }} />
-                      Add Your First Asset
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <DataManager
+      title="Assets"
+      items={assets}
+      itemType="asset"
+      saveData={saveData}
+      deleteData={deleteData}
+      openModal={openModal}
+      columns={columns}
+      renderRow={renderRow}
+      darkMode={darkMode}
+    />
   );
 };
 

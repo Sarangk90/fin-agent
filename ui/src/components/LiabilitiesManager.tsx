@@ -4,9 +4,11 @@ import DataManager from './DataManager/DataManager';
 interface Liability {
   id: string;
   name: string;
-  valueINR: number;
+  outstandingAmountINR: number;
+  type: string;
   interestRate?: number;
   termYears?: number;
+  dueDate?: string;
   [key: string]: string | number | undefined; 
 }
 
@@ -35,14 +37,16 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
   darkMode
 }) => {
   const columns = [
-    { key: 'name', label: 'Name' },
-    { key: 'valueINR', label: 'Amount (INR)' },
-    { key: 'interestRate', label: 'Interest Rate (%)' },
+    { key: 'name', label: 'Name', type: 'text', required: true, placeholder: 'e.g., Credit Card, Home Loan' },
+    { key: 'type', label: 'Type', type: 'text', required: true, placeholder: 'e.g., Secured, Unsecured' },
+    { key: 'outstandingAmountINR', label: 'Outstanding Amount (INR)', type: 'number', required: true, placeholder: '0' },
+    { key: 'interestRate', label: 'Interest Rate (%)', type: 'number', placeholder: '0.0' },
+    { key: 'dueDate', label: 'Due Date', type: 'date' },
   ];
 
   const renderRow = (item: Liability, cols: { key: string; label: string }[]) => cols.map(col => (
     <td key={col.key} className={`py-3 px-2 sm:px-4 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} whitespace-nowrap`}>
-      {col.key === 'valueINR' ? formatCurrency(item[col.key] as number) :
+      {col.key === 'outstandingAmountINR' ? formatCurrency(item[col.key] as number) :
        col.key === 'interestRate' && item[col.key] ? `${item[col.key]}%` :
        item[col.key] || '-'}
     </td>

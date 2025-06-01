@@ -8,6 +8,7 @@ interface Expense {
   amount: number;
   frequency: string;
   needWant: 'Need' | 'Want';
+  date: string;
   [key: string]: string | number | undefined;
 }
 
@@ -47,22 +48,42 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
   openModal,
   darkMode
 }) => {
-  const columns = [
-    { key: 'category', label: 'Category' },
-    { key: 'details', label: 'Details' },
-    { key: 'amount', label: 'Amount (INR)' },
-    { key: 'frequency', label: 'Frequency' },
-    { key: 'needWant', label: 'Need/Want' },
+  const managerColumns = [
+    { key: 'category', label: 'Category', type: 'text', placeholder: 'e.g., Food, Rent, Utilities', required: true },
+    { key: 'details', label: 'Details', type: 'textarea', placeholder: 'e.g., Groceries from store' },
+    { key: 'amount', label: 'Amount', type: 'number', placeholder: '0.00', required: true },
+    {
+      key: 'frequency', label: 'Frequency', type: 'select', required: true, options: [
+        { value: 'One-Time', label: 'One-Time' },
+        { value: 'Monthly', label: 'Monthly' },
+        { value: 'Quarterly', label: 'Quarterly' },
+        { value: 'Semi-Annually', label: 'Semi-Annually' },
+        { value: 'Annually', label: 'Annually' },
+      ]
+    },
+    {
+      key: 'needWant', label: 'Need/Want', type: 'select', required: true, options: [
+        { value: 'Need', label: 'Need' },
+        { value: 'Want', label: 'Want' },
+      ]
+    },
+    { key: 'date', label: 'Date', type: 'date', required: true },
+  ];
+
+  const displayColumns = [
+    ...managerColumns,
     { key: 'annualAmount', label: 'Annual Amt (INR)' },
   ];
 
-  const renderRow = (item: Expense, cols: { key: string; label: string }[]) => cols.map(col => (
-    <td key={col.key} className={`py-3 px-2 sm:px-4 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} whitespace-nowrap`}>
-      {col.key === 'amount' ? formatCurrency(item[col.key] as number) :
-       col.key === 'annualAmount' ? formatCurrency(calculateAnnualAmount(item.amount, item.frequency)) :
-       item[col.key] || '-'}
-    </td>
-  ));
+  const renderRow = (item: Expense, cols: Array<{ key: string; label: string }>) => {
+    return displayColumns.map(col => (
+      <td key={col.key} className={`py-3 px-2 sm:px-4 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} whitespace-nowrap`}>
+        {col.key === 'amount' ? formatCurrency(item[col.key] as number) :
+         col.key === 'annualAmount' ? formatCurrency(calculateAnnualAmount(item.amount, item.frequency)) :
+         item[col.key as keyof Expense] || '-'}
+      </td>
+    ));
+  };
 
   return (
     <DataManager
@@ -72,7 +93,7 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
       saveData={saveData}
       deleteData={deleteData}
       openModal={openModal}
-      columns={columns}
+      columns={managerColumns}
       renderRow={renderRow}
       darkMode={darkMode}
     />
