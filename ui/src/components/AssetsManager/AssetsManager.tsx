@@ -190,22 +190,20 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
   }, [assets]);
 
   return (
-    <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} p-6 rounded-lg shadow-md`}>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Assets</h2>
+    <div className={styles.assetsManager}>
+      <div className={styles.header}>
+        <div className={styles.headerLeft}>
+          <h2>Assets</h2>
+          <span className={styles.totalValue}>{formatCurrency(totalValue)}</span>
+        </div>
         <button
           onClick={handleAdd}
           disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+          className={styles.addButton}
         >
           <Plus size={18} />
           Add Asset
         </button>
-      </div>
-
-      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">Total Value</h3>
-        <p className="text-2xl font-bold">{formatCurrency(totalValue)}</p>
       </div>
 
       {assets.length === 0 ? (
@@ -213,41 +211,37 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
           <p className="text-gray-500 dark:text-gray-400">No assets found. Add your first asset to get started.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead className={styles.tableHeader}>
               <tr>
                 {columns.map(column => (
-                  <th
-                    key={column.key}
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
+                  <th key={column.key}>
                     {column.label}
                   </th>
                 ))}
-                <th scope="col" className="relative px-6 py-3">
-                  <span className="sr-only">Actions</span>
-                </th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody>
               {assets.map(asset => (
-                <tr key={asset.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr key={asset.id} className={styles.row}>
                   {renderRow(asset, columns)}
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
+                  <td className={styles.cell}>
+                    <div className={styles.actions}>
                       <button
                         onClick={() => handleEdit(asset)}
-                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        className={`${styles.actionButton} ${styles.editButton}`}
                         disabled={isLoading}
+                        aria-label="Edit asset"
                       >
                         <Edit size={18} />
                       </button>
                       <button
                         onClick={() => handleDelete(asset.id as string)}
-                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        className={`${styles.actionButton} ${styles.deleteButton}`}
                         disabled={isLoading}
+                        aria-label="Delete asset"
                       >
                         <Trash2 size={18} />
                       </button>
