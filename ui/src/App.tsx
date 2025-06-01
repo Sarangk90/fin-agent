@@ -61,11 +61,23 @@ interface Expense {
   [key: string]: string | number | undefined; // Index signature from ExpensesManager
 }
 
+// Define a type for Liability, matching frontend (LiabilitiesManager) and backend (liability_models)
+interface Liability {
+  id: string;
+  name: string;
+  type: string;
+  outstandingAmountINR: number;
+  interestRate?: number; // Optional
+  dueDate?: string;      // Optional, YYYY-MM-DD
+  // termYears is not currently in UI forms, so excluded for now
+  [key: string]: string | number | undefined; // Index signature from LiabilitiesManager
+}
+
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]); // Use Expense type
-  const [liabilities, setLiabilities] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [liabilities, setLiabilities] = useState<Liability[]>([]); // Use Liability type
   const [userProfile, setUserProfile] = useState<any>({});
 
   const [modalContent, setModalContent] = useState<React.ReactNode | null>(null);
@@ -206,8 +218,98 @@ function App() {
   const liabilitiesManagerProps = {
     ...commonManagerProps,
     liabilities: liabilities,
-    saveData: async () => { console.log('Save liability'); closeModalHandler(); return null; },
-    deleteData: async (id: string) => { console.log('Delete liability', id); return Promise.resolve(); },
+    saveData: async (collection: string, liabilityData: Omit<Liability, 'id'>, id?: string) => {
+      console.log(`Attempting to save to collection: ${collection}, liability data:`, liabilityData, `id: ${id}`);
+      if (collection !== 'liabilities') {
+        console.warn(`saveData called for unhandled collection: ${collection}`);
+        return null;
+      }
+
+      const payload = { ...liabilityData };
+      // Ensure numeric fields are numbers
+      if (typeof payload.outstandingAmountINR === 'string') {
+        payload.outstandingAmountINR = parseFloat(payload.outstandingAmountINR) || 0;
+      }
+      if (payload.interestRate && typeof payload.interestRate === 'string') {
+        payload.interestRate = parseFloat(payload.interestRate);
+        if (isNaN(payload.interestRate)) payload.interestRate = undefined; // or handle as error
+      } else if (payload.interestRate === '') { // Handle empty string from form for optional number
+        payload.interestRate = undefined;
+      }
+      // dueDate from HTML date input is already "YYYY-MM-DD" or empty string for optional
+      if (payload.dueDate === '') {
+        payload.dueDate = undefined;
+      }
+
+      if (id) { // Update existing liability
+        console.log("Attempting to update liability with id:", id, "Payload:", payload);
+        try {
+          const response = await fetch(`http://localhost:5001/api/liabilities/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Backend error details (update liability):", errorData);
+            throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+          }
+          const updatedLiability = await response.json() as Liability;
+          console.log('Liability updated successfully:', updatedLiability);
+          setLiabilities(prevLiabilities => prevLiabilities.map(lib => lib.id === id ? updatedLiability : lib));
+          closeModalHandler();
+          return updatedLiability.id;
+        } catch (error: any) {
+          console.error("Failed to update liability:", error);
+          closeModalHandler();
+          return null;
+        }
+      } else { // Create new liability
+        console.log("Payload for new liability:", payload);
+        try {
+          const response = await fetch('http://localhost:5001/api/liabilities', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Backend error details (create liability):", errorData);
+            throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+          }
+          const newLiability = await response.json() as Liability;
+          console.log('Liability created successfully:', newLiability);
+          setLiabilities(prevLiabilities => [...prevLiabilities, newLiability]);
+          closeModalHandler();
+          return newLiability.id;
+        } catch (error: any) {
+          console.error("Failed to create liability:", error);
+          closeModalHandler();
+          return null;
+        }
+      }
+    },
+    deleteData: async (collection: string, id: string) => {
+      console.log(`Attempting to delete from ${collection}, id: ${id}`);
+      if (collection !== 'liabilities') {
+        console.warn(`deleteData called for unhandled collection: ${collection}`);
+        return;
+      }
+      try {
+        const response = await fetch(`http://localhost:5001/api/liabilities/${id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok && response.status !== 204) {
+          const errorData = await response.json().catch(() => ({ detail: "Failed to parse error from delete response"}));
+          console.error("Backend error details (delete liability):", errorData);
+          throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        }
+        console.log(`Liability with id ${id} deleted successfully.`);
+        setLiabilities(prevLiabilities => prevLiabilities.filter(lib => lib.id !== id));
+      } catch (error: any) {
+        console.error(`Failed to delete liability with id ${id}:`, error);
+      }
+    },
   };
 
   const expensesManagerProps = {
@@ -338,6 +440,22 @@ function App() {
     };
 
     fetchExpenses();
+
+    const fetchLiabilities = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/liabilities');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const fetchedLiabilities = await response.json() as Liability[];
+        setLiabilities(fetchedLiabilities);
+        console.log('Liabilities fetched successfully:', fetchedLiabilities);
+      } catch (error) {
+        console.error("Failed to fetch liabilities:", error);
+      }
+    };
+
+    fetchLiabilities();
 
     // Test: Apply a Tailwind class to the body
     document.body.classList.add('bg-sky-500'); // A bright Tailwind color

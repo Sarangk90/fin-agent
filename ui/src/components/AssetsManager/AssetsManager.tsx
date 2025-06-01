@@ -107,6 +107,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
       title="Assets"
       items={assets}
       itemType="asset"
+      collectionName="assets"
       saveData={saveData}
       deleteData={deleteData}
       openModal={openModal}

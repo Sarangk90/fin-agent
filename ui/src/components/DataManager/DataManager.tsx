@@ -15,6 +15,7 @@ interface DataManagerProps {
   title: string;
   items: any[];
   itemType: string;
+  collectionName: string;
   saveData: (collection: string, data: any, id?: string) => Promise<string | null>;
   deleteData: (collection: string, id: string) => Promise<void>;
   openModal: (content: React.ReactNode, title?: string) => void;
@@ -79,6 +80,7 @@ const DataManager: React.FC<DataManagerProps> = ({
   title,
   items,
   itemType,
+  collectionName,
   saveData,
   deleteData,
   openModal,
@@ -102,7 +104,7 @@ const DataManager: React.FC<DataManagerProps> = ({
     openModal(
       <DataForm
         onSubmit={async (data: any) => {
-          await saveData(itemType + 's', data); 
+          await saveData(collectionName, data);
           openModal(null);
         }}
         onCancel={() => openModal(null)}
@@ -119,7 +121,7 @@ const DataManager: React.FC<DataManagerProps> = ({
       <DataForm
         initialData={item}
         onSubmit={async (data: any) => {
-          await saveData(itemType + 's', data, item.id); 
+          await saveData(collectionName, data, item.id);
           openModal(null);
         }}
         onCancel={() => openModal(null)}
@@ -132,7 +134,7 @@ const DataManager: React.FC<DataManagerProps> = ({
 
   const handleDeleteItem = (id: string) => {
     if (window.confirm(`Are you sure you want to delete this ${itemType}? This action cannot be undone.`)) {
-      deleteData(itemType + 's', id);
+      deleteData(collectionName, id);
     }
   };
 

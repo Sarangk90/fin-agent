@@ -90,6 +90,7 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
       title="Expenses"
       items={expenses}
       itemType="expense"
+      collectionName="expenses"
       saveData={saveData}
       deleteData={deleteData}
       openModal={openModal}

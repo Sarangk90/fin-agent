@@ -57,6 +57,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
       title="Liabilities"
       items={liabilities}
       itemType="liability"
+      collectionName="liabilities"
       saveData={saveData}
       deleteData={deleteData}
       openModal={openModal}
