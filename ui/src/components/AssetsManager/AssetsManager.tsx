@@ -19,10 +19,11 @@ export interface Asset {
   id: string;
   name: string;
   valueINR: number;
+  interestRate?: number;
   assetClass: string;
   assetType: string;
   fpAssetClass: string;
-  [key: string]: string | number;
+  [key: string]: string | number | undefined;
 }
 
 interface AssetsManagerProps {
@@ -66,6 +67,17 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
       type: 'number', 
       required: true, 
       placeholder: '0' 
+    },
+    {
+      key: 'interestRate',
+      name: 'interestRate',
+      label: 'Interest Rate (%)',
+      type: 'number',
+      required: false,
+      placeholder: 'e.g., 5.5',
+      step: '0.01',
+      min: 0,
+      max: 100
     },
     { 
       key: 'assetClass', 
@@ -124,12 +136,32 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     },
   ], []);
 
-  const renderRow = (item: Asset, cols: FormField[]) => {
-    return cols.map(col => (
-      <td key={col.key} className={`${styles.cell} ${col.key === 'valueINR' ? styles.currency : ''}`}>
-        {col.key === 'valueINR' ? formatCurrency(item[col.key] as number) : item[col.key] || '-'}
-      </td>
-    ));
+  const renderRow = (asset: Asset, columns: FormField[]) => {
+    return columns.map(column => {
+      let value = asset[column.key];
+      
+      if (column.key === 'valueINR' && typeof value === 'number') {
+        return (
+          <td key={column.key} className={styles.cell}>
+            {formatCurrency(value as number)}
+          </td>
+        );
+      }
+      
+      if (column.key === 'interestRate') {
+        return (
+          <td key={column.key} className={styles.cell}>
+            {value ? `${value}%` : '-'}
+          </td>
+        );
+      }
+      
+      return (
+        <td key={column.key} className={styles.cell}>
+          {value || '-'}
+        </td>
+      );
+    });
   };
 
   const handleAdd = () => {
@@ -185,25 +217,118 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     }
   };
 
-  const totalValue = useMemo(() => {
-    return assets.reduce((sum, asset) => sum + (asset.valueINR || 0), 0);
+  const { totalValue, totalAssets, assetAllocation, lastUpdated, avgInterestRate } = useMemo(() => {
+    if (assets.length === 0) {
+      return {
+        totalValue: 0,
+        totalAssets: 0,
+        assetAllocation: [],
+        lastUpdated: null
+      };
+    }
+
+    const total = assets.reduce((sum, asset) => sum + (asset.valueINR || 0), 0);
+    
+    // Calculate asset allocation by class
+    const allocationMap = assets.reduce<Record<string, number>>((acc, asset) => {
+      const classKey = asset.assetClass || 'Other';
+      acc[classKey] = (acc[classKey] || 0) + (asset.valueINR || 0);
+      return acc;
+    }, {});
+    
+    // Convert to array and sort by value
+    const allocation = Object.entries(allocationMap)
+      .map(([name, value]) => ({
+        name,
+        value,
+        percentage: (value / total) * 100
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 3); // Top 3 classes
+    
+    // Find the most recent updated date
+    const lastUpdate = assets.length > 0 
+      ? new Date(Math.max(...assets
+          .filter(a => a.updatedAt)
+          .map(a => new Date(a.updatedAt as string).getTime())))
+      : null;
+    
+    // Calculate weighted average interest rate
+    const totalInterestBearingAssets = assets.reduce((sum, asset) => {
+      const rate = typeof asset.interestRate === 'number' ? asset.interestRate : 0;
+      return rate > 0 ? sum + (asset.valueINR || 0) : sum;
+    }, 0);
+    
+    const totalInterest = assets.reduce((sum, asset) => {
+      const rate = typeof asset.interestRate === 'number' ? asset.interestRate : 0;
+      return rate > 0 ? sum + ((asset.valueINR || 0) * rate / 100) : sum;
+    }, 0);
+    
+    const avgRate = totalInterestBearingAssets > 0 
+      ? (totalInterest / totalInterestBearingAssets) * 100 
+      : 0;
+    
+    return {
+      totalValue: total,
+      totalAssets: assets.length,
+      assetAllocation: allocation,
+      lastUpdated: lastUpdate,
+      avgInterestRate: parseFloat(avgRate.toFixed(2))
+    };
   }, [assets]);
 
   return (
     <div className={styles.assetsManager}>
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <h2>Assets</h2>
-          <span className={styles.totalValue}>{formatCurrency(totalValue)}</span>
+          <div className={styles.headerTopRow}>
+            <div>
+              <h2>Assets</h2>
+              <p className={styles.subtitle}>Track and manage your financial assets across different classes and types</p>
+            </div>
+            <div className={styles.headerRight}>
+              <button
+                onClick={handleAdd}
+                disabled={isLoading}
+                className={styles.addButton}
+              >
+                <Plus size={18} />
+                Add Asset
+              </button>
+            </div>
+          </div>
+          
+          <div className={styles.metricsGrid}>
+            <div className={styles.metricCard}>
+              <div className={styles.metricLabel}>Total Value</div>
+              <div className={styles.metricValue}>{formatCurrency(totalValue)}</div>
+            </div>
+            
+            <div className={styles.metricCard}>
+              <div className={styles.metricLabel}>Total Assets</div>
+              <div className={styles.metricValue}>{totalAssets}</div>
+            </div>
+            
+            <div className={styles.metricCard}>
+              <div className={styles.metricLabel}>Avg. Interest Rate</div>
+              <div className={styles.metricValue}>
+                {avgInterestRate > 0 ? `${avgInterestRate.toFixed(2)}%` : '-'}
+              </div>
+            </div>
+            
+            <div className={styles.metricCard}>
+              <div className={styles.metricLabel}>Top Asset Class</div>
+              <div className={styles.metricValue}>
+                {assetAllocation.length > 0 ? assetAllocation[0].name : '-'}
+                {assetAllocation.length > 0 && (
+                  <span className={styles.metricSubtext}>
+                    {assetAllocation[0].percentage.toFixed(1)}%
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={handleAdd}
-          disabled={isLoading}
-          className={styles.addButton}
-        >
-          <Plus size={18} />
-          Add Asset
-        </button>
       </div>
 
       {assets.length === 0 ? (

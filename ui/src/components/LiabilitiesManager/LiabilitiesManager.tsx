@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import LiabilityForm from './LiabilityForm';
+import styles from './LiabilitiesManager.module.scss';
 
 interface FormField {
   key: string;
@@ -110,9 +111,11 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
     return cols.map(col => {
       let value = item[col.key as keyof Liability];
       let displayValue: React.ReactNode = value || '-';
+      let cellClass = styles.cell;
       
       if (col.key === 'outstandingAmountINR' && typeof value === 'number') {
-        displayValue = formatCurrency(value);
+        displayValue = formatCurrency(Number(value));
+        cellClass += ` ${styles.currency}`;
       } else if (col.key === 'interestRate' && value) {
         displayValue = `${value}%`;
       } else if (col.key === 'dueDate' && value) {
@@ -120,14 +123,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
       }
       
       return (
-        <td 
-          key={col.key} 
-          className={`px-6 py-4 whitespace-nowrap text-sm ${
-            col.key === 'outstandingAmountINR' || col.key === 'interestRate' 
-              ? 'text-right font-mono' 
-              : 'text-gray-900 dark:text-gray-100'
-          }`}
-        >
+        <td key={col.key} className={cellClass}>
           {displayValue}
         </td>
       );
@@ -186,105 +182,143 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
     }
   };
 
-  const totalOutstanding = useMemo(() => {
-    return liabilities.reduce((sum, liability) => sum + (liability.outstandingAmountINR || 0), 0);
+  const { totalOutstanding, totalLiabilities, avgInterestRate, nextDueDate } = useMemo(() => {
+    if (liabilities.length === 0) {
+      return {
+        totalOutstanding: 0,
+        totalLiabilities: 0,
+        avgInterestRate: 0,
+        nextDueDate: null
+      };
+    }
+
+    const total = liabilities.reduce((sum, liability) => sum + (liability.outstandingAmountINR || 0), 0);
+    const totalInterest = liabilities.reduce((sum, liability) => {
+      const amount = liability.outstandingAmountINR || 0;
+      const rate = liability.interestRate || 0;
+      return sum + (amount * rate / 100);
+    }, 0);
+    
+    const avgRate = total > 0 ? (totalInterest / total * 100) : 0;
+    
+    const upcomingPayments = liabilities
+      .filter(l => l.dueDate)
+      .map(l => new Date(l.dueDate as string))
+      .sort((a, b) => a.getTime() - b.getTime());
+    
+    return {
+      totalOutstanding: total,
+      totalLiabilities: liabilities.length,
+      avgInterestRate: parseFloat(avgRate.toFixed(2)),
+      nextDueDate: upcomingPayments.length > 0 ? upcomingPayments[0] : null
+    };
   }, [liabilities]);
 
   return (
-    <div className={`${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-800'} p-6 rounded-xl shadow-lg`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Liabilities</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your financial liabilities and their details</p>
+    <div className={styles.liabilitiesManager}>
+      <div className={styles.header}>
+        <div className={styles.headerLeft}>
+          <div className={styles.headerTopRow}>
+            <div>
+              <h2>Liabilities</h2>
+              <p className={styles.subtitle}>Manage your financial liabilities and their details</p>
+            </div>
+            <div className={styles.headerRight}>
+              <button
+                onClick={handleAdd}
+                disabled={isLoading}
+                className={styles.addButton}
+              >
+                <Plus size={18} />
+                Add Liability
+              </button>
+            </div>
+          </div>
+          
+          <div className={styles.metricsGrid}>
+            <div className={styles.metricCard}>
+              <div className={styles.metricLabel}>Total Outstanding</div>
+              <div className={styles.metricValue}>{formatCurrency(totalOutstanding)}</div>
+            </div>
+            
+            <div className={styles.metricCard}>
+              <div className={styles.metricLabel}>Total Liabilities</div>
+              <div className={styles.metricValue}>{totalLiabilities}</div>
+            </div>
+            
+            <div className={styles.metricCard}>
+              <div className={styles.metricLabel}>Avg. Interest Rate</div>
+              <div className={styles.metricValue}>
+                {avgInterestRate > 0 ? `${avgInterestRate}%` : '-'}
+              </div>
+            </div>
+            
+            <div className={styles.metricCard}>
+              <div className={styles.metricLabel}>Next Due Date</div>
+              <div className={styles.metricValue}>
+                {nextDueDate ? nextDueDate.toLocaleDateString() : '-'}
+              </div>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={handleAdd}
-          disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Plus size={18} />
-          Add Liability
-        </button>
-      </div>
-
-      <div className="mb-8 p-5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/10 rounded-xl border border-red-100 dark:border-red-900/30">
-        <h3 className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Total Outstanding</h3>
-        <p className="text-3xl font-bold text-red-900 dark:text-white">{formatCurrency(totalOutstanding)}</p>
       </div>
 
       {liabilities.length === 0 ? (
-        <div className="text-center py-12 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-          <div className="mx-auto w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-3">
-            <Plus className="text-red-500 dark:text-red-400" size={24} />
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>
+            <Plus size={24} />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">No liabilities found</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first liability</p>
+          <h3>No liabilities found</h3>
+          <p>Get started by adding your first liability</p>
           <button
             onClick={handleAdd}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 rounded-md transition-colors duration-200"
+            className={styles.addButton}
           >
             <Plus size={16} />
             Add Liability
           </button>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-800/80 backdrop-blur-sm">
-                <tr>
-                  {columns.map((column, index) => (
-                    <th
-                      key={column.key}
-                      scope="col"
-                      className={`px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider ${
-                        index === 0 ? 'rounded-tl-xl' : ''
-                      }`}
-                    >
-                      {column.label}
-                    </th>
-                  ))}
-                  <th scope="col" className="relative px-6 py-3.5 rounded-tr-xl">
-                    <span className="sr-only">Actions</span>
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead className={styles.tableHeader}>
+              <tr>
+                {columns.map(column => (
+                  <th key={column.key}>
+                    {column.label}
                   </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800/50">
-                {liabilities.map((liability, index) => (
-                  <tr 
-                    key={liability.id} 
-                    className={`${
-                      index % 2 === 0 
-                        ? 'bg-white dark:bg-gray-800/50' 
-                        : 'bg-gray-50 dark:bg-gray-800/30'
-                    } hover:bg-red-50/50 dark:hover:bg-gray-700/50 transition-colors duration-150`}
-                  >
-                    {renderRow(liability, columns)}
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-3">
-                        <button
-                          onClick={() => handleEdit(liability)}
-                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 p-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
-                          disabled={isLoading}
-                          title="Edit liability"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(liability.id as string)}
-                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                          disabled={isLoading}
-                          title="Delete liability"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {liabilities.map(liability => (
+                <tr key={liability.id} className={styles.row}>
+                  {renderRow(liability, columns)}
+                  <td className={styles.cell}>
+                    <div className={styles.actions}>
+                      <button
+                        onClick={() => handleEdit(liability)}
+                        className={`${styles.actionButton} ${styles.editButton}`}
+                        disabled={isLoading}
+                        title="Edit liability"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(liability.id as string)}
+                        className={`${styles.actionButton} ${styles.deleteButton}`}
+                        disabled={isLoading}
+                        title="Delete liability"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
