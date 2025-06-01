@@ -49,10 +49,22 @@ interface Asset {
   [key: string]: string | number; // Index signature to EXACTLY match AssetsManager
 }
 
+// Define a type for Expense, matching frontend (ExpensesManager) and backend (expense_models)
+interface Expense {
+  id: string;
+  category: string;
+  details?: string; // Optional
+  amount: number;
+  frequency: string; // "One-Time", "Monthly", etc.
+  needWant: 'Need' | 'Want';
+  date: string; // YYYY-MM-DD
+  [key: string]: string | number | undefined; // Index signature from ExpensesManager
+}
+
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const [assets, setAssets] = useState<Asset[]>([]); // Use the Asset type
-  const [expenses, setExpenses] = useState<any[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]); // Use Expense type
   const [liabilities, setLiabilities] = useState<any[]>([]);
   const [userProfile, setUserProfile] = useState<any>({});
 
@@ -157,7 +169,7 @@ function App() {
     deleteData: async (collection: string, id: string) => {
       console.log(`Attempting to delete from ${collection}, id: ${id}`);
       if (collection !== 'assets') {
-        console.warn(`deleteData called for unhandled collection: ${collection}`);
+        console.warn(`deleteData called for unhandled collection: ${collection} in assetsManagerProps`);
         return;
       }
 
@@ -201,8 +213,89 @@ function App() {
   const expensesManagerProps = {
     ...commonManagerProps,
     expenses: expenses,
-    saveData: async () => { console.log('Save expense'); closeModalHandler(); return null; },
-    deleteData: async (id: string) => { console.log('Delete expense', id); return Promise.resolve(); },
+    saveData: async (collection: string, expenseData: Omit<Expense, 'id'>, id?: string) => {
+      console.log(`Attempting to save to collection: ${collection}, expense data:`, expenseData, `id: ${id}`);
+      if (collection !== 'expenses') {
+        console.warn(`saveData called for unhandled collection: ${collection}`);
+        return null;
+      }
+
+      // Ensure amount is a number
+      const payload = { ...expenseData };
+      if (typeof payload.amount === 'string') {
+        payload.amount = parseFloat(payload.amount) || 0;
+      }
+      // Dates from HTML date inputs are already in "YYYY-MM-DD" string format.
+
+      if (id) { // Update existing expense
+        console.log("Attempting to update expense with id:", id, "Payload:", payload);
+        try {
+          const response = await fetch(`http://localhost:5001/api/expenses/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Backend error details (update expense):", errorData);
+            throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+          }
+          const updatedExpense = await response.json() as Expense;
+          console.log('Expense updated successfully:', updatedExpense);
+          setExpenses(prevExpenses => prevExpenses.map(exp => exp.id === id ? updatedExpense : exp));
+          closeModalHandler();
+          return updatedExpense.id;
+        } catch (error: any) {
+          console.error("Failed to update expense:", error);
+          closeModalHandler();
+          return null;
+        }
+      } else { // Create new expense
+        console.log("Payload for new expense:", payload);
+        try {
+          const response = await fetch('http://localhost:5001/api/expenses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Backend error details (create expense):", errorData);
+            throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+          }
+          const newExpense = await response.json() as Expense;
+          console.log('Expense created successfully:', newExpense);
+          setExpenses(prevExpenses => [...prevExpenses, newExpense]);
+          closeModalHandler();
+          return newExpense.id;
+        } catch (error: any) {
+          console.error("Failed to create expense:", error);
+          closeModalHandler();
+          return null;
+        }
+      }
+    },
+    deleteData: async (collection: string, id: string) => {
+      console.log(`Attempting to delete from ${collection}, id: ${id}`);
+      if (collection !== 'expenses') {
+        console.warn(`deleteData called for unhandled collection: ${collection}`);
+        return;
+      }
+      try {
+        const response = await fetch(`http://localhost:5001/api/expenses/${id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok && response.status !== 204) {
+          const errorData = await response.json().catch(() => ({ detail: "Failed to parse error from delete response" }));
+          console.error("Backend error details (delete expense):", errorData);
+          throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        }
+        console.log(`Expense with id ${id} deleted successfully.`);
+        setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== id));
+      } catch (error: any) {
+        console.error(`Failed to delete expense with id ${id}:`, error);
+      }
+    },
   };
 
   const profileSettingsProps = {
@@ -229,6 +322,22 @@ function App() {
     };
 
     fetchAssets();
+
+    const fetchExpenses = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/expenses');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const fetchedExpenses = await response.json() as Expense[];
+        setExpenses(fetchedExpenses);
+        console.log('Expenses fetched successfully:', fetchedExpenses);
+      } catch (error) {
+        console.error("Failed to fetch expenses:", error);
+      }
+    };
+
+    fetchExpenses();
 
     // Test: Apply a Tailwind class to the body
     document.body.classList.add('bg-sky-500'); // A bright Tailwind color

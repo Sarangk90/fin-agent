@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Import the new assets router
 from app.api.assets_router import router as assets_api_router
+from app.api.expenses_router import router as expenses_api_router # Import expenses router
 # from app.db.database import engine # For later when we have DB models
 # from app.models import asset_models # If your ORM models are also Pydantic
 
@@ -33,6 +34,7 @@ app.add_middleware(
 
 # Include the assets API router
 app.include_router(assets_api_router)
+app.include_router(expenses_api_router) # Include expenses router
 
 # You can add other routers here as your application grows
 # For example, for liabilities, expenses, etc.

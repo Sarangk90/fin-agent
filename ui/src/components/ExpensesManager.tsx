@@ -93,7 +93,7 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
       saveData={saveData}
       deleteData={deleteData}
       openModal={openModal}
-      columns={managerColumns}
+      columns={displayColumns}
       renderRow={renderRow}
       darkMode={darkMode}
     />
