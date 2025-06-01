@@ -27,7 +27,23 @@ async def create_new_asset(asset: AssetIn):
         # Log the exception e here for debugging
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unexpected error occurred while creating the asset.")
 
-# Placeholders for GET by ID, PUT, DELETE endpoints
+@router.put("/{asset_id}", response_model=AssetOut)
+async def update_existing_asset(asset_id: str, asset_data: AssetIn):
+    """Update an existing asset by its ID."""
+    updated_asset = await asset_service.update_asset_service(asset_id, asset_data)
+    if updated_asset is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Asset with ID {asset_id} not found")
+    return updated_asset
+
+@router.delete("/{asset_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_existing_asset(asset_id: str):
+    """Delete an asset by its ID."""
+    deleted_successfully = await asset_service.delete_asset_service(asset_id)
+    if not deleted_successfully:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Asset with ID {asset_id} not found or already deleted")
+    return # FastAPI will return 204 No Content by default if no body is returned
+
+# Placeholders for GET by ID
 # @router.get("/{asset_id}", response_model=AssetOut)
 # async def get_asset_by_id(asset_id: str):
 #     pass

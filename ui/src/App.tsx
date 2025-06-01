@@ -46,7 +46,7 @@ interface Asset {
   assetClass: string;      // E.g., Cash, Equity, Debt, Real Estate, Commodities
   assetType: string;       // E.g., Savings Account, Stocks, FD, Residential Property
   fpAssetClass: string;    // E.g., Emergency Fund, Retirement, Goal-Specific
-  // No index signature, strictly defined fields for MVP
+  [key: string]: string | number; // Index signature to EXACTLY match AssetsManager
 }
 
 function App() {
@@ -92,53 +92,102 @@ function App() {
     saveData: async (collection: string, assetData: Omit<Asset, 'id'>, id?: string) => {
       console.log(`Attempting to save to collection: ${collection}, asset data:`, assetData, `id: ${id}`);
 
-      if (id) {
-        console.warn("Update functionality not yet implemented in saveData for assets.");
-        // Here you would typically make a PUT request to /api/assets/${id}
-        // with the assetData payload.
-        return null; // Placeholder for update
-      }
-
-      // The assetData should now conform to Omit<Asset, 'id'> as per the type
-      // If valueINR might still come as a string from the form, parseFloat it here.
-      // For MVP, let's ensure the form sends it as a number.
+      // Ensure valueINR is a number, as it might come as a string from the form
       const payload = { ...assetData };
-      
-      // Ensure valueINR is a number if there's still doubt from form input
       if (typeof payload.valueINR === 'string') {
         payload.valueINR = parseFloat(payload.valueINR) || 0;
       }
+      
+      if (id) { // Update existing asset
+        console.log("Attempting to update asset with id:", id, "Payload:", payload);
+        try {
+          const response = await fetch(`http://localhost:5001/api/assets/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
 
-      console.log("Payload being sent to backend:", payload);
-
-      try {
-        const response = await fetch('http://localhost:5001/api/assets', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Backend error details:", errorData);
-          throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Backend error details (update):", errorData);
+            throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+          }
+          const updatedAsset = await response.json() as Asset;
+          console.log('Asset updated successfully, response:', updatedAsset);
+          setAssets(prevAssets => prevAssets.map(asset => asset.id === id ? updatedAsset : asset));
+          closeModalHandler();
+          return updatedAsset.id;
+        } catch (error: any) {
+          console.error("Failed to update asset:", error);
+          // Optionally: openModalHandler(<div>Error updating asset: {error.message}</div>, "Error");
+          closeModalHandler(); // Close modal even on error, or handle differently
+          return null;
         }
-        const newAsset = await response.json() as Asset;
-        console.log('Asset saved successfully, response:', newAsset);
-        setAssets(prevAssets => [...prevAssets, newAsset]);
-        closeModalHandler();
-        return newAsset.id;
-      } catch (error: any) {
-        console.error("Failed to save asset:", error);
-        closeModalHandler();
-        return null;
+      } else { // Create new asset
+        console.log("Payload being sent to backend (create):", payload);
+        try {
+          const response = await fetch('http://localhost:5001/api/assets', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Backend error details (create):", errorData);
+            throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+          }
+          const newAsset = await response.json() as Asset;
+          console.log('Asset saved successfully, response:', newAsset);
+          setAssets(prevAssets => [...prevAssets, newAsset]);
+          closeModalHandler();
+          return newAsset.id;
+        } catch (error: any) {
+          console.error("Failed to save asset:", error);
+          // Optionally: openModalHandler(<div>Error saving asset: {error.message}</div>, "Error");
+          closeModalHandler();
+          return null;
+        }
       }
     },
     deleteData: async (collection: string, id: string) => {
-      console.log(`Delete from ${collection} (not implemented yet), id:`, id);
-      return Promise.resolve();
+      console.log(`Attempting to delete from ${collection}, id: ${id}`);
+      if (collection !== 'assets') {
+        console.warn(`deleteData called for unhandled collection: ${collection}`);
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:5001/api/assets/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          // For 204 No Content, response.ok is true, but response.json() would fail.
+          // For other errors (404, 500), try to parse JSON.
+          if (response.status === 404) {
+             const errorData = await response.json();
+             console.error("Backend error details (delete - 404):", errorData);
+             throw new Error(errorData.detail || `Asset with ID ${id} not found.`);
+          } else if (response.status !== 204) {
+            const errorData = await response.json();
+            console.error("Backend error details (delete):", errorData);
+            throw new Error(errorData.detail || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+          }
+        }
+        // If response.ok and status is 204, deletion was successful.
+        console.log(`Asset with id ${id} deleted successfully.`);
+        setAssets(prevAssets => prevAssets.filter(asset => asset.id !== id));
+        // No need to call closeModalHandler() here as deletion is usually not done from a modal
+        // that needs explicit closing for this action. If it were, DataManager would handle it.
+      } catch (error: any) {
+        console.error(`Failed to delete asset with id ${id}:`, error);
+        // Optionally: openModalHandler(<div>Error deleting asset: {error.message}</div>, "Error");
+      }
     },
   };
 
