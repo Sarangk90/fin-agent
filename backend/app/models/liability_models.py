@@ -38,5 +38,10 @@ class LiabilityOut(LiabilityBase):
     id: str
 
 # Dummy database for liabilities
-dummy_liabilities_db: List[Dict[str, Any]] = []
-next_liability_id_counter: int = 1 
+dummy_liabilities_db: List[Dict[str, Any]] = [
+    {"id": "1", "name": "Home Loan", "type": "Secured Loan", "outstandingAmountINR": 3500000, "interestRate": 8.5, "dueDate": "2043-05-15"},
+    {"id": "2", "name": "Car Loan", "type": "Secured Loan", "outstandingAmountINR": 450000, "interestRate": 9.2, "dueDate": "2028-11-01"},
+    {"id": "3", "name": "Credit Card Due - ICICI", "type": "Unsecured Loan", "outstandingAmountINR": 35000, "interestRate": 36.0, "dueDate": "2023-11-20"},
+    {"id": "4", "name": "Personal Loan", "type": "Unsecured Loan", "outstandingAmountINR": 150000, "interestRate": 14.0, "dueDate": "2026-07-01"}
+]
+next_liability_id_counter: int = 5 # Adjusted to be the next available ID 

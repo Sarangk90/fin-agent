@@ -63,5 +63,12 @@ class ExpenseOut(ExpenseBase):
     id: str
 
 # Dummy database for expenses
-dummy_expenses_db: List[Dict[str, Any]] = []
-next_expense_id_counter: int = 1 
+dummy_expenses_db: List[Dict[str, Any]] = [
+    {"id": "1", "category": "Housing", "details": "Monthly Rent", "amount": 25000, "frequency": "Monthly", "needWant": "Need", "date": "2023-10-01"},
+    {"id": "2", "category": "Food", "details": "Groceries for the week", "amount": 3000, "frequency": "Monthly", "needWant": "Need", "date": "2023-10-05"},
+    {"id": "3", "category": "Utilities", "details": "Electricity Bill", "amount": 1200, "frequency": "Monthly", "needWant": "Need", "date": "2023-10-10"},
+    {"id": "4", "category": "Transport", "details": "Metro Card Recharge", "amount": 500, "frequency": "Monthly", "needWant": "Need", "date": "2023-10-02"},
+    {"id": "5", "category": "Entertainment", "details": "Movie tickets", "amount": 600, "frequency": "One-Time", "needWant": "Want", "date": "2023-10-07"},
+    {"id": "6", "category": "Health", "details": "Gym Membership", "amount": 1500, "frequency": "Monthly", "needWant": "Want", "date": "2023-10-01"}
+]
+next_expense_id_counter: int = 7 # Adjusted to be the next available ID 
