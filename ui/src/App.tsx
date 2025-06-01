@@ -242,7 +242,7 @@ function App() {
         console.log(`Asset with id ${id} deleted successfully.`);
         setAssets(prevAssets => prevAssets.filter(asset => asset.id !== id));
         // No need to call closeModalHandler() here as deletion is usually not done from a modal
-        // that needs explicit closing for this action. If it were, DataManager would handle it.
+        // that needs explicit closing for this action. The deletion is now handled by the respective manager components.
       } catch (error: any) {
         console.error(`Failed to delete asset with id ${id}:`, error);
         // Optionally: openModalHandler(<div>Error deleting asset: {error.message}</div>, "Error");
