@@ -14,7 +14,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import ExpensesManager from './components/ExpensesManager';
 import AssetsManager from './components/AssetsManager/AssetsManager';
 import LiabilitiesManager from './components/LiabilitiesManager';
-import ProfileSettings from './components/ProfileSettings';
+import ProfileSettings from './components/ProfileSetting/ProfileSettings';
 import Modal from './components/Modal/Modal';
 
 // --- Configuration ---
