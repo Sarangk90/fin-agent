@@ -3,7 +3,7 @@ declare const __firebase_config: string | undefined;
 declare const __app_id: string | undefined;
 declare const __initial_auth_token: string | undefined;
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, setLogLevel } from 'firebase/firestore';
@@ -83,6 +83,41 @@ function App() {
   const [modalContent, setModalContent] = useState<React.ReactNode | null>(null);
   const [modalTitle, setModalTitle] = useState<string | undefined>(undefined);
 
+  // Calculate totalAssets using useMemo
+  const totalAssetsValue = useMemo(() => {
+    return assets.reduce((sum, asset) => sum + (asset.valueINR || 0), 0);
+  }, [assets]);
+
+  // Calculate totalLiabilities using useMemo
+  const totalLiabilitiesValue = useMemo(() => {
+    return liabilities.reduce((sum, liability) => sum + (liability.outstandingAmountINR || 0), 0);
+  }, [liabilities]);
+
+  // Helper function logic for annual expense calculation (adapted from ExpensesManager)
+  const calculateAnnualExpense = (amount: number, frequency: string): number => {
+    amount = parseFloat(amount.toString()) || 0;
+    switch (frequency) {
+      case "Monthly": return amount * 12;
+      case "Quarterly": return amount * 4;
+      case "Semi-Annually": return amount * 2;
+      case "Annually": return amount;
+      case "One-Time": return amount; // Or decide if one-time expenses count towards *annual* total
+      default: return 0;
+    }
+  };
+
+  // Calculate totalAnnualExpenses using useMemo
+  const totalAnnualExpensesValue = useMemo(() => {
+    return expenses.reduce((sum, expense) => {
+      return sum + calculateAnnualExpense(expense.amount, expense.frequency);
+    }, 0);
+  }, [expenses]);
+
+  // Calculate netWorth using useMemo
+  const netWorthValue = useMemo(() => {
+    return totalAssetsValue - totalLiabilitiesValue;
+  }, [totalAssetsValue, totalLiabilitiesValue]);
+
   const openModalHandler = (content: React.ReactNode, title?: string) => {
     setModalTitle(title);
     setModalContent(content);
@@ -94,10 +129,10 @@ function App() {
   };
 
   const dashboardProps = {
-    netWorth: 0,
-    totalAssets: 0,
-    totalLiabilities: 0,
-    totalAnnualExpenses: 0,
+    netWorth: netWorthValue,
+    totalAssets: totalAssetsValue,
+    totalLiabilities: totalLiabilitiesValue,
+    totalAnnualExpenses: totalAnnualExpensesValue,
     totalAnnualNeeds: 0,
     totalAnnualWants: 0,
     assets: assets,
