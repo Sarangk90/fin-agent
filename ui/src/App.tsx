@@ -13,7 +13,7 @@ import Layout from './components/Layout/Layout';
 import Dashboard from './components/Dashboard/Dashboard';
 import ExpensesManager from './components/ExpensesManager';
 import AssetsManager from './components/AssetsManager/AssetsManager';
-import LiabilitiesManager from './components/LiabilitiesManager';
+import LiabilitiesManager from './components/LiabilitiesManager/LiabilitiesManager';
 import ProfileSettings from './components/ProfileSetting/ProfileSettings';
 import Modal from './components/Modal/Modal';
 
