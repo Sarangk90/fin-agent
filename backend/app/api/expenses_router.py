@@ -12,7 +12,16 @@ router = APIRouter(
 @router.get("", response_model=List[ExpenseOut])
 async def get_all_expenses():
     """Retrieve all expenses."""
-    return await expense_service.get_expenses_service()
+    try:
+        return await expense_service.get_expenses_service()
+    except Exception as e:
+        # It's good practice to log the error for debugging purposes
+        # For example: print(f"Error in get_all_expenses: {e}") or use a proper logger
+        # You might want to add logging here
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred while retrieving expenses."
+        )
 
 @router.post("", response_model=ExpenseOut, status_code=status.HTTP_201_CREATED)
 async def create_new_expense(expense: ExpenseIn):
@@ -43,7 +52,14 @@ async def update_existing_expense(expense_id: str, expense_data: ExpenseIn):
 @router.delete("/{expense_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_existing_expense(expense_id: str):
     """Delete an expense by its ID."""
-    deleted_successfully = await expense_service.delete_expense_service(expense_id)
-    if not deleted_successfully:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Expense with ID {expense_id} not found or already deleted")
-    return # FastAPI will return 204 No Content by default 
+    try:
+        deleted_successfully = await expense_service.delete_expense_service(expense_id)
+        if not deleted_successfully:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Expense with ID {expense_id} not found or already deleted")
+        return # FastAPI will return 204 No Content by default
+    except Exception as e:
+        # Add logging for the error e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while deleting expense {expense_id}."
+        ) 

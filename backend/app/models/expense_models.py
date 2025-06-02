@@ -64,11 +64,40 @@ class ExpenseOut(ExpenseBase):
 
 # Dummy database for expenses
 dummy_expenses_db: List[Dict[str, Any]] = [
-    {"id": "1", "category": "Housing", "details": "Monthly Rent", "amount": 25000, "frequency": "Monthly", "needWant": "Need", "date": "2023-10-01"},
-    {"id": "2", "category": "Food", "details": "Groceries for the week", "amount": 3000, "frequency": "Monthly", "needWant": "Need", "date": "2023-10-05"},
-    {"id": "3", "category": "Utilities", "details": "Electricity Bill", "amount": 1200, "frequency": "Monthly", "needWant": "Need", "date": "2023-10-10"},
-    {"id": "4", "category": "Transport", "details": "Metro Card Recharge", "amount": 500, "frequency": "Monthly", "needWant": "Need", "date": "2023-10-02"},
-    {"id": "5", "category": "Entertainment", "details": "Movie tickets", "amount": 600, "frequency": "One-Time", "needWant": "Want", "date": "2023-10-07"},
-    {"id": "6", "category": "Health", "details": "Gym Membership", "amount": 1500, "frequency": "Monthly", "needWant": "Want", "date": "2023-10-01"}
+    {"id": "1", "category": "Childcare", "details": "Kid 1 school fees broken into monthly", "amount": 16667, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "2", "category": "Childcare", "details": "Kid 2 school fees broken into monthly", "amount": 16667, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "3", "category": "Food", "details": "Veg groceries food expense", "amount": 7500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "4", "category": "Food", "details": "Restaurent food expense", "amount": 10000, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
+    {"id": "5", "category": "Helper", "details": "Helper Cook", "amount": 6500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "6", "category": "Helper", "details": "Helper Sweeping", "amount": 1000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "7", "category": "Helper", "details": "Helper Dish Washing", "amount": 1000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "8", "category": "Helper", "details": "Helper Bathroom", "amount": 1500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "9", "category": "Insurance", "details": "Medical Super Top Up", "amount": 833, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "10", "category": "Insurance", "details": "Medical", "amount": 417, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "11", "category": "Rent", "details": "House Rent", "amount": 70000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "12", "category": "EMI", "details": "House EMI", "amount": 50000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "13", "category": "Shopping", "details": "General shopping", "amount": 5000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "14", "category": "Tax", "details": "Dad Tax Filing", "amount": 1200, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "15", "category": "Tax", "details": "Mom Tax Filing", "amount": 1200, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "16", "category": "Trip", "details": "International Trip", "amount": 41667, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
+    {"id": "17", "category": "Trip", "details": "Long Trip", "amount": 16667, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
+    {"id": "18", "category": "Trip", "details": "Short Trip", "amount": 8333, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
+    {"id": "19", "category": "Utilities", "details": "Electricity Bill", "amount": 3500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "20", "category": "Utilities", "details": "Internet Bill", "amount": 1500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "22", "category": "Utilities", "details": "Gas Bill", "amount": 750, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "23", "category": "Utilities", "details": "Dry Cleaning Bill", "amount": 500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "24", "category": "Utilities", "details": "Mom Phone Bill", "amount": 450, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "25", "category": "Utilities", "details": "Water Bill", "amount": 400, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "26", "category": "Utilities", "details": "Dad Phone Bill", "amount": 500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "27", "category": "Utilities", "details": "Ironing Bill", "amount": 500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "28", "category": "Utilities", "details": "Car Petrol Bill", "amount": 3000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+    # Non-monthly (yearly and multi-year) expenses
+    {"id": "29", "category": "Childcare", "details": "Kid 1 school fees broken into monthly", "amount": 200000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "30", "category": "Childcare", "details": "Kid 2 school fees broken into monthly", "amount": 200000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "31", "category": "Trip", "details": "Short Trip", "amount": 100000, "frequency": "Annually", "needWant": "Want", "date": "2025-06-01"},
+    {"id": "32", "category": "Trip", "details": "Long Trip", "amount": 200000, "frequency": "Annually", "needWant": "Want", "date": "2025-06-01"},
+    {"id": "33", "category": "Trip", "details": "International Trip", "amount": 1000000, "frequency": "Annually", "needWant": "Want", "date": "2025-06-01"},
+    {"id": "34", "category": "Insurance", "details": "Family Medical Super Top Up Insurance", "amount": 30000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
+    {"id": "35", "category": "Insurance", "details": "Family Medical Insurance", "amount": 10000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"}
 ]
-next_expense_id_counter: int = 7 # Adjusted to be the next available ID 
+next_expense_id_counter: int = 36 # Adjusted to be the next available ID

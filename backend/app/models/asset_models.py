@@ -65,11 +65,8 @@ class AssetOut(AssetBase):
 # This list will eventually be replaced by a database connection and ORM
 # For now, the service layer will manage this dummy list.
 dummy_assets_db: List[Dict[str, Any]] = [
-    {"id": "1", "name": "Savings Bank Account", "valueINR": 100000.0, "assetClass": "Cash / Cash Equivalent", "assetType": "Savings Account", "fpAssetClass": "Emergency Fund"},
-    {"id": "2", "name": "Fixed Deposit - HDFC", "valueINR": 500000.0, "assetClass": "Debt", "assetType": "Fixed Deposit (FD)", "fpAssetClass": "Goal-Specific"},
-    {"id": "3", "name": "Infosys Shares", "valueINR": 750000.0, "assetClass": "Equity", "assetType": "Stocks (Direct Equity)", "fpAssetClass": "General Investment / Wealth Creation"},
-    {"id": "4", "name": "Mutual Fund - Parag Parikh Flexi Cap", "valueINR": 1500000.0, "assetClass": "Equity", "assetType": "Equity Mutual Fund", "fpAssetClass": "Retirement"},
-    {"id": "5", "name": "Gold ETF", "valueINR": 250000.0, "assetClass": "Commodities", "assetType": "SGB (Sovereign Gold Bond)", "fpAssetClass": "General Investment / Wealth Creation"},
-    {"id": "6", "name": "Residential Property - Flat", "valueINR": 2500000.0, "assetClass": "Real Estate", "assetType": "Residential Property", "fpAssetClass": "General Investment / Wealth Creation"}
+    {"id": "1", "name": "Saving Account", "valueINR": 500000.0, "assetClass": "Cash / Cash Equivalent", "assetType": "Savings Account", "fpAssetClass": "Emergency Fund"},
+    {"id": "2", "name": "Shares", "valueINR": 10000000.0, "assetClass": "Equity", "assetType": "Stocks (Direct Equity)", "fpAssetClass": "Retirement"},
+    {"id": "3", "name": "Other Asset", "valueINR": 200000.0, "assetClass": "Equity", "assetType": "Stocks (Direct Equity)", "fpAssetClass": "Retirement"}
 ]
-next_id_counter = 7 # Adjusted to be the next available ID 
+next_id_counter = 4 # Adjusted to be the next available ID

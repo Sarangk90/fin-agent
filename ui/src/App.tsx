@@ -16,6 +16,7 @@ import AssetsManager from './components/AssetsManager/AssetsManager';
 import LiabilitiesManager from './components/LiabilitiesManager/LiabilitiesManager';
 import ProfileSettings from './components/ProfileSetting/ProfileSettings';
 import Modal from './components/Modal/Modal';
+import './App.css';
 
 // --- Configuration ---
 const LOCAL_DEV_MODE = true;
