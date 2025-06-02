@@ -11,7 +11,7 @@ import { DollarSign, TrendingUp, TrendingDown, Home, CreditCard, Settings, PlusC
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import Dashboard from './components/Dashboard/Dashboard';
-import ExpensesManager from './components/ExpensesManager';
+import ExpensesManager from './components/ExpensesManager/ExpensesManager';
 import AssetsManager from './components/AssetsManager/AssetsManager';
 import LiabilitiesManager from './components/LiabilitiesManager/LiabilitiesManager';
 import ProfileSettings from './components/ProfileSetting/ProfileSettings';

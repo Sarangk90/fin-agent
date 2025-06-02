@@ -1,0 +1,454 @@
+.expensesManager {
+  width: 100%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+  
+  .headerTopRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+  
+  .headerLeft {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    
+    h2 {
+      margin: 0 0 0.25rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .subtitle {
+      font-size: 0.9375rem;
+      opacity: 0.9;
+      margin: 0;
+      max-width: 600px;
+    }
+  }
+  
+  .headerRight {
+    display: flex;
+    align-items: flex-start;
+    
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+    
+    .addButton {
+      white-space: nowrap;
+      margin-left: 1rem;
+      
+      @media (max-width: 768px) {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+      }
+    }
+  }
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+  width: 100%;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metricCard {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 80px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .metricLabel {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .metricValue {
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.2;
+  }
+}
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0; // Fixes flexbox scrolling issues
+  background-color: var(--bg-primary);
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9375rem;
+  table-layout: fixed;
+  background-color: var(--bg-primary);
+  min-width: 100%;
+  
+  @media (max-width: 1024px) {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  @media (min-width: 768px) {
+    min-width: 100%;
+  }
+}
+
+.tableHeader {
+  background: var(--bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  
+  th {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    text-align: left;
+    white-space: nowrap;
+    position: relative;
+    
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 1px;
+      background-color: var(--border-color);
+    }
+    
+    &:first-child {
+      padding-left: 1.5rem;
+    }
+    
+    &:last-child {
+      padding-right: 1.5rem;
+      text-align: right;
+    }
+  }
+}
+
+.row {
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    .cell {
+      background-color: var(--hover-bg);
+    }
+  }
+  
+  &:last-child {
+    .cell:first-child {
+      border-bottom-left-radius: 0.5rem;
+    }
+    
+    .cell:last-child {
+      border-bottom-right-radius: 0.5rem;
+    }
+  }
+  
+  &:not(:last-child) {
+    .cell {
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
+}
+
+.cell {
+  padding: 0.75rem 1.25rem;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  vertical-align: middle;
+  position: relative;
+  
+  &[data-column='amount'],
+  &[data-column='annualAmount'] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 500;
+  }
+  
+  &[data-column='date'] {
+    white-space: nowrap;
+  }
+  
+  &[data-column='details'] {
+    white-space: normal;
+    max-width: 300px;
+  }
+  
+  &[data-column='actions'] {
+    vertical-align: middle;
+    padding: 0;
+    height: 100%;
+    
+    .cellContent {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 0.5rem;
+    }
+  }
+  
+  &.rightAligned {
+    text-align: right;
+  }
+  
+  .cellContent {
+    display: flex;
+    align-items: center;
+    min-height: 2.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  &:first-child {
+    padding-left: 1.5rem;
+  }
+  
+  &:last-child {
+    padding-right: 1.5rem;
+  }
+  
+  &:first-child {
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+  }
+  
+  &:last-child {
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 0 0.5rem;
+}
+
+.actionButton {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.8;
+  margin: 0;
+
+  &:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    transition: all 0.2s ease;
+  }
+}
+
+.editButton {
+  color: var(--accent-color);
+  
+  &:hover {
+    background-color: rgba(99, 102, 241, 0.1);
+    color: var(--accent-hover);
+  }
+}
+
+.deleteButton {
+  color: #ef4444;
+  
+  &:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+  }
+  
+  &:hover {
+    background-color: rgba(248, 113, 113, 0.1);
+    color: #fca5a5;
+  }
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-right: 0.5rem;
+  }
+}
+
+.emptyState {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+// Dark mode overrides
+:global(.dark) {
+  .expensesManager {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+  }
+  
+  .tableHeader {
+    background-color: var(--bg-secondary);
+    th {
+      color: var(--text-secondary);
+    }
+  }
+  
+  .row {
+    &:hover {
+      background-color: var(--bg-hover);
+    }
+  }
+  
+  .cell {
+    color: var(--text-primary);
+  }
+  
+  .actionButton {
+    color: var(--text-secondary);
+    
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
+}

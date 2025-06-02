@@ -1,7 +1,21 @@
 import React, { useMemo, useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { FormField } from './AssetsManager/AssetsManager';
-import AssetForm from './AssetsManager/AssetForm';
+import ExpenseForm from './ExpenseForm';
+import styles from './ExpensesManager.module.scss';
+
+export interface FormField {
+  key: string;
+  name: string;
+  label: string;
+  type: 'text' | 'number' | 'select' | 'textarea' | 'date';
+  options?: Array<{value: string; label: string}>;
+  required?: boolean;
+  placeholder?: string;
+  step?: string;
+  min?: number | string;
+  max?: number | string;
+  [key: string]: any;
+}
 
 export interface Expense {
   id: string;
@@ -125,27 +139,52 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
   const displayColumns = [
     ...columns,
-    { key: 'annualAmount', label: 'Annual Amt (INR)' },
+    { 
+      key: 'annualAmount', 
+      label: 'Annual Amount',
+      align: 'right' as const
+    },
   ];
+  
+  // Define column widths based on content
+  const getColumnWidth = (key: string) => {
+    const widths: {[key: string]: string} = {
+      'category': '180px',
+      'amount': '140px',
+      'annualAmount': '180px',
+      'frequency': '110px',
+      'needWant': '110px',
+      'date': '135px',
+      'details': 'minmax(80px, 120px)'
+    };
+    return widths[key] || 'minmax(150px, 1fr)';
+  };
 
   const renderRow = (item: Expense, cols: FormField[]) => {
-    return displayColumns.map(col => (
-      <td 
-        key={col.key} 
-        className={`py-3 px-4 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} whitespace-nowrap`}
-      >
-        {col.key === 'amount' 
-          ? formatCurrency(item[col.key] as number) 
-          : col.key === 'annualAmount' 
-            ? formatCurrency(calculateAnnualAmount(item.amount, item.frequency))
-            : item[col.key as keyof Expense] || '-'}
-      </td>
-    ));
+    return displayColumns.map(col => {
+      const value = col.key === 'amount' 
+        ? formatCurrency(item[col.key] as number)
+        : col.key === 'annualAmount'
+          ? formatCurrency(calculateAnnualAmount(item.amount, item.frequency))
+          : item[col.key as keyof Expense] || '-';
+      
+      return (
+        <td 
+          key={col.key}
+          className={`${styles.cell} ${col.align === 'right' ? styles.rightAligned : ''}`}
+          data-column={col.key}
+        >
+          <div className={styles.cellContent}>
+            {value}
+          </div>
+        </td>
+      );
+    });
   };
 
   const handleAdd = () => {
     openModal(
-      <AssetForm
+      <ExpenseForm
         initialData={{ date: new Date().toISOString().split('T')[0] }}
         onSubmit={async (data: any) => {
           setIsLoading(true);
@@ -159,6 +198,7 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
         onCancel={() => openModal(null)}
         fields={columns}
         darkMode={darkMode}
+        isLoading={isLoading}
       />,
       'Add New Expense'
     );
@@ -166,7 +206,7 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
   const handleEdit = (expense: Expense) => {
     openModal(
-      <AssetForm
+      <ExpenseForm
         initialData={expense}
         onSubmit={async (data: any) => {
           setIsLoading(true);
@@ -180,6 +220,7 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
         onCancel={() => openModal(null)}
         fields={columns}
         darkMode={darkMode}
+        isLoading={isLoading}
       />,
       'Edit Expense'
     );
@@ -207,70 +248,91 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
   }, [totalAnnualExpense]);
 
   return (
-    <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} p-6 rounded-lg shadow-md`}>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Expenses</h2>
-        <button
-          onClick={handleAdd}
-          disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-        >
-          <Plus size={18} />
-          Add Expense
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Monthly Average</h3>
-          <p className="text-2xl font-bold">{formatCurrency(totalMonthlyExpense)}</p>
+    <div className={styles.expensesManager}>
+      <div className={styles.header}>
+        <div className={styles.headerTopRow}>
+          <div className={styles.headerLeft}>
+            <h2>Expenses</h2>
+            <p className={styles.subtitle}>Track and manage your monthly and annual expenses</p>
+          </div>
+          <div className={styles.headerRight}>
+            <button
+              onClick={handleAdd}
+              disabled={isLoading}
+              className={styles.addButton}
+            >
+              <Plus size={18} />
+              Add Expense
+            </button>
+          </div>
         </div>
-        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Annual Total</h3>
-          <p className="text-2xl font-bold">{formatCurrency(totalAnnualExpense)}</p>
+
+        <div className={styles.metricsGrid}>
+          <div className={styles.metricCard}>
+            <div className={styles.metricLabel}>Monthly Average</div>
+            <div className={styles.metricValue}>{formatCurrency(totalMonthlyExpense)}</div>
+          </div>
+          <div className={styles.metricCard}>
+            <div className={styles.metricLabel}>Annual Total</div>
+            <div className={styles.metricValue}>{formatCurrency(totalAnnualExpense)}</div>
+          </div>
+          <div className={styles.metricCard}>
+            <div className={styles.metricLabel}>Total Expenses</div>
+            <div className={styles.metricValue}>{expenses.length}</div>
+          </div>
+          <div className={styles.metricCard}>
+            <div className={styles.metricLabel}>Last Updated</div>
+            <div className={styles.metricValue}>
+              {expenses.length > 0 
+                ? new Date(Math.max(...expenses.map(e => new Date(e.date).getTime()))).toLocaleDateString()
+                : '-'}
+            </div>
+          </div>
         </div>
       </div>
 
       {expenses.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500 dark:text-gray-400">No expenses found. Add your first expense to get started.</p>
+        <div className={styles.emptyState}>
+          <p>No expenses found. Add your first expense to get started.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <colgroup>
+              {displayColumns.map(column => (
+                <col key={column.key} style={{ width: getColumnWidth(column.key) }} />
+              ))}
+              <col style={{ width: '100px' }} />
+            </colgroup>
+            <thead className={styles.tableHeader}>
               <tr>
                 {displayColumns.map(column => (
-                  <th
-                    key={column.key}
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
+                  <th key={column.key}>
                     {column.label}
                   </th>
                 ))}
-                <th scope="col" className="relative px-6 py-3">
-                  <span className="sr-only">Actions</span>
-                </th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody>
               {expenses.map(expense => (
-                <tr key={expense.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr key={expense.id} className={styles.row}>
                   {renderRow(expense, columns)}
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
+                  <td className={styles.cell}>
+                    <div className={styles.actions}>
                       <button
                         onClick={() => handleEdit(expense)}
-                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        className={`${styles.actionButton} ${styles.editButton}`}
                         disabled={isLoading}
+                        title="Edit expense"
                       >
                         <Edit size={18} />
                       </button>
                       <button
                         onClick={() => handleDelete(expense.id as string)}
-                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        className={`${styles.actionButton} ${styles.deleteButton}`}
                         disabled={isLoading}
+                        title="Delete expense"
                       >
                         <Trash2 size={18} />
                       </button>
