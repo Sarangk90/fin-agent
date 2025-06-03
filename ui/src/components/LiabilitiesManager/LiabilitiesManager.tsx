@@ -3,15 +3,7 @@ import { Plus, Edit, Trash2 } from 'lucide-react';
 import LiabilityForm from './LiabilityForm';
 import styles from './LiabilitiesManager.module.scss';
 
-interface FormField {
-  key: string;
-  name: string;
-  label: string;
-  type: string;
-  required?: boolean;
-  placeholder?: string;
-  options?: { label: string; value: string }[];
-}
+import { FormField, FormFieldType } from '../../types/form';
 
 export interface Liability {
   id: string;
@@ -55,7 +47,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
       key: 'name', 
       name: 'name',
       label: 'Name', 
-      type: 'text', 
+      type: 'text' as FormFieldType, 
       required: true, 
       placeholder: 'e.g., Credit Card, Home Loan' 
     },
@@ -63,7 +55,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
       key: 'outstandingAmountINR', 
       name: 'outstandingAmountINR',
       label: 'Outstanding Amount (INR)', 
-      type: 'number', 
+      type: 'number' as FormFieldType, 
       required: true, 
       placeholder: '0' 
     },
@@ -71,7 +63,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
       key: 'type', 
       name: 'type',
       label: 'Type', 
-      type: 'select', 
+      type: 'select' as FormFieldType, 
       required: true,
       options: [
         { label: 'Credit Card', value: 'credit_card' },
@@ -86,7 +78,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
       key: 'interestRate', 
       name: 'interestRate',
       label: 'Interest Rate (%)', 
-      type: 'number', 
+      type: 'number' as FormFieldType, 
       placeholder: '0.00',
       required: false 
     },
@@ -94,7 +86,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
       key: 'termYears', 
       name: 'termYears',
       label: 'Term (Years)', 
-      type: 'number', 
+      type: 'number' as FormFieldType, 
       placeholder: '0',
       required: false 
     },
@@ -102,7 +94,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
       key: 'dueDate', 
       name: 'dueDate',
       label: 'Due Date', 
-      type: 'date', 
+      type: 'date' as FormFieldType, 
       required: false 
     },
   ], []);
@@ -139,7 +131,6 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
         onCancel={() => openModal(null)}
         fields={columns}
         darkMode={darkMode}
-        title="Add New Liability"
       />,
       'Add New Liability'
     );
@@ -148,6 +139,7 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
   const handleSave = async (id: string, data: any) => {
     setIsLoading(true);
     try {
+      // The data is already in the correct format (name-based) when it comes from the form
       await saveData('liabilities', data, id || undefined);
       openModal(null);
     } finally {
@@ -165,7 +157,6 @@ const LiabilitiesManager: React.FC<LiabilitiesManagerProps> = ({
         onCancel={() => openModal(null)}
         fields={columns}
         darkMode={darkMode}
-        title="Edit Liability"
       />,
       'Edit Liability'
     );
