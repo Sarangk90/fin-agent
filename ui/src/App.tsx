@@ -4,7 +4,6 @@ declare const __app_id: string | undefined;
 declare const __initial_auth_token: string | undefined;
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Goal } from './components/GoalsManager/GoalsManager';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, setLogLevel } from 'firebase/firestore';
@@ -18,7 +17,6 @@ import LiabilitiesManager from './components/LiabilitiesManager/LiabilitiesManag
 import ProfileSettings from './components/ProfileSetting/ProfileSettings';
 import GoalsManager from './components/GoalsManager/GoalsManager';
 import Modal from './components/Modal/Modal';
-import './App.css';
 
 // --- Configuration ---
 const LOCAL_DEV_MODE = true;
@@ -70,10 +68,22 @@ interface Liability {
   name: string;
   type: string;
   outstandingAmountINR: number;
-  interestRate?: number; // Optional
-  dueDate?: string;      // Optional, YYYY-MM-DD
-  // termYears is not currently in UI forms, so excluded for now
-  [key: string]: string | number | undefined; // Index signature from LiabilitiesManager
+  interestRate?: number;
+  dueDate?: string;
+  [key: string]: any; // Allow additional properties
+}
+
+// Define a type for Goal, matching frontend (GoalsManager) and backend
+export interface Goal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate: string;
+  priority: 'high' | 'medium' | 'low';
+  category: string;
+  notes?: string;
+  [key: string]: string | number | undefined; // For additional properties
 }
 
 function App() {
@@ -81,6 +91,7 @@ function App() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [liabilities, setLiabilities] = useState<Liability[]>([]); // Use Liability type
+  const [goals, setGoals] = useState<Goal[]>([]); // State for goals
   const [userProfile, setUserProfile] = useState<any>({});
 
   const [modalContent, setModalContent] = useState<React.ReactNode | null>(null);
@@ -131,6 +142,11 @@ function App() {
     setModalTitle(undefined);
   };
 
+  // Calculate total goals amount
+  const totalGoalsAmount = useMemo(() => {
+    return goals.reduce((sum, goal) => sum + (goal.targetAmount || 0), 0);
+  }, [goals]);
+
   const dashboardProps = {
     netWorth: netWorthValue,
     totalAssets: totalAssetsValue,
@@ -139,6 +155,7 @@ function App() {
     totalAnnualNeeds: 0,
     totalAnnualWants: 0,
     assets: assets,
+    totalGoals: totalGoalsAmount,
     expenses: expenses,
     darkMode: darkMode,
   };
@@ -444,33 +461,34 @@ function App() {
     darkMode: darkMode,
   };
 
-  // State for goals
-  const [goals, setGoals] = useState<Goal[]>([]);
-
   // Fetch goals from backend
   useEffect(() => {
     const fetchGoals = async () => {
       try {
+        console.log('Fetching goals from API...');
         const response = await fetch('http://localhost:5001/api/goals');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const fetchedGoals: Goal[] = await response.json();
-        // Ensure all required fields are present
-        const validatedGoals = fetchedGoals.map(goal => ({
-          id: goal.id || '',
-          name: goal.name || 'Unnamed Goal',
+        const fetchedGoals = await response.json();
+        console.log('Raw goals data from API:', fetchedGoals);
+        
+        // Ensure all required fields are present and properly typed
+        const validatedGoals: Goal[] = fetchedGoals.map((goal: any) => ({
+          id: goal.id?.toString() || '',
+          name: goal.name?.toString() || 'Unnamed Goal',
           targetAmount: Number(goal.targetAmount) || 0,
           currentAmount: Number(goal.currentAmount) || 0,
-          targetDate: goal.targetDate || new Date().toISOString().split('T')[0],
-          priority: (['high', 'medium', 'low'].includes(goal.priority) 
-            ? goal.priority 
-            : 'medium') as 'high' | 'medium' | 'low', // Type assertion here
-          category: goal.category || 'Other',
-          notes: goal.notes || ''
+          targetDate: goal.targetDate?.toString() || new Date().toISOString().split('T')[0],
+          priority: (['high', 'medium', 'low'].includes(goal.priority?.toString().toLowerCase())
+            ? goal.priority.toString().toLowerCase() as 'high' | 'medium' | 'low'
+            : 'medium'),
+          category: goal.category?.toString() || 'Other',
+          notes: goal.notes?.toString() || ''
         }));
+        
+        console.log('Validated goals:', validatedGoals);
         setGoals(validatedGoals);
-        console.log('Goals fetched successfully:', validatedGoals);
       } catch (error) {
         console.error("Failed to fetch goals:", error);
       }
@@ -481,20 +499,20 @@ function App() {
 
   const goalsManagerProps = {
     goals: goals,
-    saveData: async (collection: string, data: any, id?: string) => {
-      console.log(`Saving to ${collection}:`, data, id ? `(id: ${id})` : '(new)');
-      if (collection !== 'goals') {
-        console.warn(`saveData called for unhandled collection: ${collection}`);
+    saveData: async (collectionName: string, data: any, id?: string) => {
+      console.log(`Saving to ${collectionName}:`, data, id ? `(id: ${id})` : '(new)');
+      if (collectionName !== 'goals') {
+        console.warn(`saveData called for unhandled collection: ${collectionName}`);
         return null;
       }
       
       try {
         // Validate and prepare the goal data
         const goalData: Omit<Goal, 'id'> = {
-          name: data.name || 'Unnamed Goal',
+          name: data.name?.toString() || 'Unnamed Goal',
           targetAmount: Number(data.targetAmount) || 0,
           currentAmount: Number(data.currentAmount) || 0,
-          targetDate: data.targetDate || new Date().toISOString().split('T')[0],
+          targetDate: data.targetDate?.toString() || new Date().toISOString().split('T')[0],
           priority: ['high', 'medium', 'low'].includes(data.priority) 
             ? data.priority as 'high' | 'medium' | 'low' 
             : 'medium',
@@ -555,16 +573,20 @@ function App() {
         throw error;
       }
     },
-    deleteData: async (collection: string, id: string) => {
-      console.log(`Attempting to delete from ${collection}, id: ${id}`);
-      if (collection !== 'goals') {
-        console.warn(`deleteData called for unhandled collection: ${collection}`);
+    deleteData: async (collectionName: string, id: string) => {
+      console.log(`Attempting to delete from ${collectionName}, id: ${id}`);
+      if (collectionName !== 'goals') {
+        console.warn(`deleteData called for unhandled collection: ${collectionName}`);
         return;
       }
       
       try {
+        console.log(`Deleting goal with ID: ${id}`);
         const response = await fetch(`http://localhost:5001/api/goals/${id}`, {
           method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
         
         if (!response.ok && response.status !== 204) {
