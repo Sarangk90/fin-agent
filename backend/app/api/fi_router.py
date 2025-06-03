@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException
-from typing import Annotated
+from fastapi import APIRouter, HTTPException, Depends
 
-from ..services.fi_service import calculate_fi_details
+from ..services.fi_service import FIService
 from ..models.fi_models import FIRequestData, FinancialIndependenceResult, UserFIParameters
+from ..dependencies import get_fi_service
 
 router = APIRouter(
     prefix="/fi", # All routes in this router will start with /fi
@@ -11,7 +11,8 @@ router = APIRouter(
 
 @router.post("/calculate-status", response_model=FinancialIndependenceResult)
 async def calculate_financial_independence_status(
-    request_data: FIRequestData
+    request_data: FIRequestData,
+    fi_service: FIService = Depends(get_fi_service)
 ) -> FinancialIndependenceResult:
     """
     Calculates the Financial Independence (FI) status and related financial metrics.
@@ -25,7 +26,7 @@ async def calculate_financial_independence_status(
             # but can be a safeguard.
             raise HTTPException(status_code=422, detail="Invalid user_fi_parameters structure.")
 
-        result = await calculate_fi_details(user_fi_parameters=request_data.user_fi_parameters)
+        result = await fi_service.calculate_fi_details(user_fi_parameters=request_data.user_fi_parameters)
         return result
     except HTTPException as http_exc: # Re-raise HTTPExceptions from service or here
         raise http_exc
@@ -38,4 +39,4 @@ async def calculate_financial_independence_status(
 # @router.get("/parameters-schema", response_model=UserFIParameters)
 # async def get_fi_parameters_schema():
 #     """Returns the schema for User FI Parameters."""
-#     return UserFIParameters.model_json_schema() 
+#     return UserFIParameters.model_json_schema()
