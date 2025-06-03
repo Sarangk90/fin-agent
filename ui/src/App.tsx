@@ -4,6 +4,7 @@ declare const __app_id: string | undefined;
 declare const __initial_auth_token: string | undefined;
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Goal } from './components/GoalsManager/GoalsManager';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, setLogLevel } from 'firebase/firestore';
@@ -15,6 +16,7 @@ import ExpensesManager from './components/ExpensesManager/ExpensesManager';
 import AssetsManager from './components/AssetsManager/AssetsManager';
 import LiabilitiesManager from './components/LiabilitiesManager/LiabilitiesManager';
 import ProfileSettings from './components/ProfileSetting/ProfileSettings';
+import GoalsManager from './components/GoalsManager/GoalsManager';
 import Modal from './components/Modal/Modal';
 import './App.css';
 
@@ -442,6 +444,145 @@ function App() {
     darkMode: darkMode,
   };
 
+  // State for goals
+  const [goals, setGoals] = useState<Goal[]>([]);
+
+  // Fetch goals from backend
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/goals');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const fetchedGoals: Goal[] = await response.json();
+        // Ensure all required fields are present
+        const validatedGoals = fetchedGoals.map(goal => ({
+          id: goal.id || '',
+          name: goal.name || 'Unnamed Goal',
+          targetAmount: Number(goal.targetAmount) || 0,
+          currentAmount: Number(goal.currentAmount) || 0,
+          targetDate: goal.targetDate || new Date().toISOString().split('T')[0],
+          priority: (['high', 'medium', 'low'].includes(goal.priority) 
+            ? goal.priority 
+            : 'medium') as 'high' | 'medium' | 'low', // Type assertion here
+          category: goal.category || 'Other',
+          notes: goal.notes || ''
+        }));
+        setGoals(validatedGoals);
+        console.log('Goals fetched successfully:', validatedGoals);
+      } catch (error) {
+        console.error("Failed to fetch goals:", error);
+      }
+    };
+
+    fetchGoals();
+  }, []);
+
+  const goalsManagerProps = {
+    goals: goals,
+    saveData: async (collection: string, data: any, id?: string) => {
+      console.log(`Saving to ${collection}:`, data, id ? `(id: ${id})` : '(new)');
+      if (collection !== 'goals') {
+        console.warn(`saveData called for unhandled collection: ${collection}`);
+        return null;
+      }
+      
+      try {
+        // Validate and prepare the goal data
+        const goalData: Omit<Goal, 'id'> = {
+          name: data.name || 'Unnamed Goal',
+          targetAmount: Number(data.targetAmount) || 0,
+          currentAmount: Number(data.currentAmount) || 0,
+          targetDate: data.targetDate || new Date().toISOString().split('T')[0],
+          priority: ['high', 'medium', 'low'].includes(data.priority) 
+            ? data.priority as 'high' | 'medium' | 'low' 
+            : 'medium',
+          category: data.category || 'Other',
+          notes: data.notes || ''
+        };
+        
+        const method = id ? 'PUT' : 'POST';
+        const url = id 
+          ? `http://localhost:5001/api/goals/${id}`
+          : 'http://localhost:5001/api/goals';
+          
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(goalData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Backend error details (save goal):", errorData);
+          throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const updatedGoal: Goal = { 
+          id: result.id?.toString() || id?.toString() || '',
+          // Ensure all required fields are present with correct types
+          name: String(goalData.name || 'Unnamed Goal'),
+          targetAmount: Number(goalData.targetAmount) || 0,
+          currentAmount: Number(goalData.currentAmount) || 0,
+          targetDate: String(goalData.targetDate || new Date().toISOString().split('T')[0]),
+          priority: (['high', 'medium', 'low'].includes(String(goalData.priority))
+            ? String(goalData.priority) as 'high' | 'medium' | 'low'
+            : 'medium'),
+          category: String(goalData.category || 'Other'),
+          notes: goalData.notes ? String(goalData.notes) : ''
+        };
+        
+        setGoals(prevGoals => {
+          if (id) {
+            // Update existing goal
+            return prevGoals.map(goal => 
+              goal.id === id ? updatedGoal : goal
+            );
+          } else {
+            // Add new goal
+            return [...prevGoals, updatedGoal];
+          }
+        });
+        
+        closeModalHandler();
+        return updatedGoal.id;
+      } catch (error) {
+        console.error(`Failed to save goal:`, error);
+        throw error;
+      }
+    },
+    deleteData: async (collection: string, id: string) => {
+      console.log(`Attempting to delete from ${collection}, id: ${id}`);
+      if (collection !== 'goals') {
+        console.warn(`deleteData called for unhandled collection: ${collection}`);
+        return;
+      }
+      
+      try {
+        const response = await fetch(`http://localhost:5001/api/goals/${id}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok && response.status !== 204) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Backend error details (delete goal):", errorData);
+          throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        }
+        
+        console.log(`Goal with id ${id} deleted successfully.`);
+        setGoals(prevGoals => prevGoals.filter(goal => goal.id !== id));
+      } catch (error) {
+        console.error(`Failed to delete goal with id ${id}:`, error);
+        throw error;
+      }
+    },
+    openModal: openModalHandler,
+    darkMode: darkMode,
+  };
   useEffect(() => {
     // Fetch initial assets
     const fetchAssets = async () => {
@@ -509,6 +650,7 @@ function App() {
         <Route path="/liabilities" element={<LiabilitiesManager {...liabilitiesManagerProps} />} />
         <Route path="/expenses" element={<ExpensesManager {...expensesManagerProps} />} />
         <Route path="/settings" element={<ProfileSettings {...profileSettingsProps} />} />
+        <Route path="/goals" element={<GoalsManager {...goalsManagerProps} />} />
       </Routes>
       <Modal isOpen={modalContent !== null} onClose={closeModalHandler} title={modalTitle} darkMode={darkMode}>
         {modalContent}

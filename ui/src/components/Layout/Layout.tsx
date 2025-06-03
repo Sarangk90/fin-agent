@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Briefcase, TrendingDown, ShoppingCart, Settings as SettingsIcon, Menu, X } from 'lucide-react';
+import { Home, Briefcase, TrendingDown, ShoppingCart, Flag, Settings as SettingsIcon, Menu, X } from 'lucide-react';
 import styles from './Layout.module.scss';
 
 interface LayoutProps {
@@ -13,6 +13,7 @@ const navItems = [
   { path: '/assets', label: 'Assets', icon: Briefcase },
   { path: '/liabilities', label: 'Liabilities', icon: TrendingDown },
   { path: '/expenses', label: 'Expenses', icon: ShoppingCart },
+  { path: '/goals', label: 'Goals', icon: Flag },
   { path: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 

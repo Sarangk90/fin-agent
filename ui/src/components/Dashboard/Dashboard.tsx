@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, ShoppingCart, Target, PieChart, CheckCircle, AlertCircle } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, ShoppingCart, Target, PieChart, CheckCircle, Flag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.scss';
 
@@ -63,6 +63,7 @@ interface DashboardProps {
   totalAssets: number;
   totalLiabilities: number;
   totalAnnualExpenses: number;
+  totalGoals: number;
   darkMode: boolean;
 }
 
@@ -81,6 +82,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   totalAssets,
   totalLiabilities,
   totalAnnualExpenses,
+  totalGoals,
   darkMode
 }) => {
   const [fiParams, setFiParams] = useState<UserFIParameters>({
@@ -154,6 +156,14 @@ const Dashboard: React.FC<DashboardProps> = ({
             colorClass="purple"
             darkMode={darkMode}
             path="/expenses"
+          />
+          <DashboardCard
+            title="Goals"
+            value={formatCurrency(totalGoals)}
+            icon={Flag}
+            colorClass="blue"
+            darkMode={darkMode}
+            path="/goals"
           />
         </div>
       </div>
