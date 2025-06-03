@@ -10,7 +10,7 @@ import asyncio
 from datetime import datetime, date
 from .database import create_tables, AsyncSessionLocal
 from .repositories import UserRepository, AssetRepository, LiabilityRepository, ExpenseRepository, GoalRepository
-from .data.static_data import StaticDataManager
+from .fixtures.sample_data import StaticDataManager
 
 def convert_string_to_date(date_string):
     """Convert string date to Python date object."""
