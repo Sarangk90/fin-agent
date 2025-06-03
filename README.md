@@ -40,15 +40,10 @@ A comprehensive personal finance management application built with React, TypeSc
    cd fin-agent
    ```
 
-2. **Install Python dependencies:**
+2. **Install Python dependencies and run setup:**
    ```bash
    cd backend
    pip install -r requirements.txt
-   cd ..
-   ```
-
-3. **Run the automated setup:**
-   ```bash
    python setup_dev.py
    ```
 
@@ -61,6 +56,7 @@ This script will:
 
 **Additional setup options:**
 ```bash
+cd backend
 python setup_dev.py --verify  # Verify existing database setup
 python setup_dev.py --reset   # Reset database with fresh data
 python setup_dev.py --help    # Show all available options
@@ -196,6 +192,7 @@ fin-agent/
 │   │   ├── migrate_data.py # Data migration script
 │   │   └── db_models.py    # SQLAlchemy models
 │   ├── main.py             # FastAPI application entry point
+│   ├── setup_dev.py        # Automated development setup script
 │   └── requirements.txt    # Python dependencies
 ├── ui/                     # React frontend
 │   ├── src/
@@ -205,7 +202,6 @@ fin-agent/
 │   │   └── main.tsx        # React application entry point
 │   ├── package.json        # Node.js dependencies
 │   └── vite.config.ts      # Vite configuration
-├── setup_dev.py            # Automated development setup script
 └── README.md               # This file
 ```
 

@@ -13,10 +13,6 @@ import os
 import argparse
 from pathlib import Path
 
-# Add backend to Python path
-backend_path = Path(__file__).parent / "backend"
-sys.path.insert(0, str(backend_path))
-
 async def setup_database():
     """Set up the database and migrate sample data."""
     print("🚀 Setting up Financial Agent Development Environment")
@@ -55,7 +51,7 @@ async def verify_database():
     print("=" * 50)
     
     # Check if database file exists
-    db_file = Path("backend/financial_agent.db")
+    db_file = Path("financial_agent.db")
     if not db_file.exists():
         print(f"❌ Database file not found: {db_file}")
         print("💡 Run: python setup_dev.py")
@@ -103,7 +99,7 @@ async def reset_database():
     print("🔄 Resetting Financial Agent Database")
     print("=" * 40)
     
-    db_file = Path("backend/financial_agent.db")
+    db_file = Path("financial_agent.db")
     if db_file.exists():
         print(f"🗑️  Removing existing database: {db_file}")
         db_file.unlink()
@@ -114,10 +110,10 @@ async def reset_database():
 def print_next_steps():
     """Print the next steps for running the application."""
     print("\n📋 Next Steps:")
-    print("1. Start the backend server:")
-    print("   cd backend && uvicorn main:app --reload --port 5001")
+    print("1. Start the backend server (from this directory):")
+    print("   uvicorn main:app --reload --port 5001")
     print("\n2. In a new terminal, start the frontend:")
-    print("   cd ui && npm install && npm run dev")
+    print("   cd ../ui && npm install && npm run dev")
     print("\n3. Access the application:")
     print("   - Frontend: http://localhost:5173")
     print("   - Backend API: http://localhost:5001")

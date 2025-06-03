@@ -8,26 +8,26 @@ class StaticDataManager:
         self.assets: List[Dict[str, Any]] = [
             {
                 "id": "1", 
-                "name": "Saving Account", 
-                "valueINR": 500000.0, 
+                "name": "Primary Savings Account", 
+                "valueINR": 350000.0, 
                 "assetClass": "Cash / Cash Equivalent", 
                 "assetType": "Savings Account", 
                 "fpAssetClass": "Emergency Fund"
             },
             {
                 "id": "2", 
-                "name": "Shares", 
-                "valueINR": 10000000.0, 
+                "name": "Equity Portfolio", 
+                "valueINR": 3050000.0, 
                 "assetClass": "Equity", 
                 "assetType": "Stocks (Direct Equity)", 
                 "fpAssetClass": "Retirement"
             },
             {
                 "id": "3", 
-                "name": "Other Asset", 
-                "valueINR": 200000.0, 
+                "name": "Mutual Funds SIP", 
+                "valueINR": 5500000.0, 
                 "assetClass": "Equity", 
-                "assetType": "Stocks (Direct Equity)", 
+                "assetType": "Equity Mutual Fund", 
                 "fpAssetClass": "Retirement"
             }
         ]
@@ -39,73 +39,61 @@ class StaticDataManager:
                 "id": "1", 
                 "name": "Home Loan", 
                 "type": "Secured Loan", 
-                "outstandingAmountINR": 3500000, 
-                "interestRate": 8.5, 
-                "dueDate": "2043-05-15"
+                "outstandingAmountINR": 2800000, 
+                "interestRate": 8.75, 
+                "dueDate": "2044-03-20"
             },
             {
                 "id": "2", 
                 "name": "Car Loan", 
                 "type": "Secured Loan", 
-                "outstandingAmountINR": 450000, 
-                "interestRate": 9.2, 
-                "dueDate": "2028-11-01"
+                "outstandingAmountINR": 320000, 
+                "interestRate": 9.5, 
+                "dueDate": "2027-08-15"
             },
             {
                 "id": "3", 
-                "name": "Credit Card Due - ICICI", 
+                "name": "Credit Card - HDFC", 
                 "type": "Unsecured Loan", 
-                "outstandingAmountINR": 35000, 
-                "interestRate": 36.0, 
-                "dueDate": "2023-11-20"
-            },
-            {
-                "id": "4", 
-                "name": "Personal Loan", 
-                "type": "Unsecured Loan", 
-                "outstandingAmountINR": 150000, 
-                "interestRate": 14.0, 
-                "dueDate": "2026-07-01"
+                "outstandingAmountINR": 28000, 
+                "interestRate": 42.0, 
+                "dueDate": "2024-01-15"
             }
         ]
         self._next_liability_id = 5
         
         # Expense data
         self.expenses: List[Dict[str, Any]] = [
-            {"id": "1", "category": "Childcare", "details": "Kid 1 school fees broken into monthly", "amount": 16667, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "2", "category": "Childcare", "details": "Kid 2 school fees broken into monthly", "amount": 16667, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "3", "category": "Food", "details": "Veg groceries food expense", "amount": 7500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "4", "category": "Food", "details": "Restaurent food expense", "amount": 10000, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
-            {"id": "5", "category": "Helper", "details": "Helper Cook", "amount": 6500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "6", "category": "Helper", "details": "Helper Sweeping", "amount": 1000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "7", "category": "Helper", "details": "Helper Dish Washing", "amount": 1000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "8", "category": "Helper", "details": "Helper Bathroom", "amount": 1500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "9", "category": "Insurance", "details": "Medical Super Top Up", "amount": 833, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "10", "category": "Insurance", "details": "Medical", "amount": 417, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "11", "category": "Rent", "details": "House Rent", "amount": 70000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "12", "category": "EMI", "details": "House EMI", "amount": 50000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "13", "category": "Shopping", "details": "General shopping", "amount": 5000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "14", "category": "Tax", "details": "Dad Tax Filing", "amount": 1200, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "15", "category": "Tax", "details": "Mom Tax Filing", "amount": 1200, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "16", "category": "Trip", "details": "International Trip", "amount": 41667, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
-            {"id": "17", "category": "Trip", "details": "Long Trip", "amount": 16667, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
-            {"id": "18", "category": "Trip", "details": "Short Trip", "amount": 8333, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
-            {"id": "19", "category": "Utilities", "details": "Electricity Bill", "amount": 3500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "20", "category": "Utilities", "details": "Internet Bill", "amount": 1500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "22", "category": "Utilities", "details": "Gas Bill", "amount": 750, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "23", "category": "Utilities", "details": "Dry Cleaning Bill", "amount": 500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "24", "category": "Utilities", "details": "Mom Phone Bill", "amount": 450, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "25", "category": "Utilities", "details": "Water Bill", "amount": 400, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "26", "category": "Utilities", "details": "Dad Phone Bill", "amount": 500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "27", "category": "Utilities", "details": "Ironing Bill", "amount": 500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "28", "category": "Utilities", "details": "Car Petrol Bill", "amount": 3000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "29", "category": "Childcare", "details": "Kid 1 school fees broken into monthly", "amount": 200000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "30", "category": "Childcare", "details": "Kid 2 school fees broken into monthly", "amount": 200000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "31", "category": "Trip", "details": "Short Trip", "amount": 100000, "frequency": "Annually", "needWant": "Want", "date": "2025-06-01"},
-            {"id": "32", "category": "Trip", "details": "Long Trip", "amount": 200000, "frequency": "Annually", "needWant": "Want", "date": "2025-06-01"},
-            {"id": "33", "category": "Trip", "details": "International Trip", "amount": 1000000, "frequency": "Annually", "needWant": "Want", "date": "2025-06-01"},
-            {"id": "34", "category": "Insurance", "details": "Family Medical Super Top Up Insurance", "amount": 30000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
-            {"id": "35", "category": "Insurance", "details": "Family Medical Insurance", "amount": 10000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"}
+            {"id": "1", "category": "Food", "details": "Groceries and household items", "amount": 8500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "2", "category": "Food", "details": "Dining out and food delivery", "amount": 6500, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
+            {"id": "3", "category": "Housing", "details": "Apartment rent", "amount": 35000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "4", "category": "EMI", "details": "Home loan EMI", "amount": 42000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "5", "category": "EMI", "details": "Car loan EMI", "amount": 18500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "6", "category": "Transportation", "details": "Fuel and vehicle maintenance", "amount": 4500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "7", "category": "Transportation", "details": "Cab rides and public transport", "amount": 2800, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "8", "category": "Utilities", "details": "Electricity bill", "amount": 2800, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "9", "category": "Utilities", "details": "Internet and cable", "amount": 1800, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "10", "category": "Utilities", "details": "Mobile phone bill", "amount": 850, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "11", "category": "Utilities", "details": "Gas cylinder", "amount": 900, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "12", "category": "Utilities", "details": "Water bill", "amount": 450, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "13", "category": "Healthcare", "details": "Medical expenses and medicines", "amount": 2500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "14", "category": "Insurance", "details": "Health insurance premium", "amount": 1250, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "15", "category": "Insurance", "details": "Term life insurance", "amount": 2100, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "16", "category": "Shopping", "details": "Clothing and personal items", "amount": 4200, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
+            {"id": "17", "category": "Entertainment", "details": "Movies, streaming, and hobbies", "amount": 3500, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
+            {"id": "18", "category": "Professional", "details": "Courses and certifications", "amount": 5000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "19", "category": "Household", "details": "Cleaning and maintenance", "amount": 2200, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "20", "category": "Travel", "details": "Weekend trips and local travel", "amount": 8000, "frequency": "Monthly", "needWant": "Want", "date": "2025-06-01"},
+            {"id": "21", "category": "Savings", "details": "SIP investments", "amount": 15000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "22", "category": "Savings", "details": "PPF contribution", "amount": 12500, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "23", "category": "Family", "details": "Parents support", "amount": 8000, "frequency": "Monthly", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "24", "category": "Insurance", "details": "Health insurance premium", "amount": 15000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "25", "category": "Insurance", "details": "Term life insurance", "amount": 25000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "26", "category": "Insurance", "details": "Vehicle insurance", "amount": 12000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "27", "category": "Travel", "details": "Annual vacation", "amount": 120000, "frequency": "Annually", "needWant": "Want", "date": "2025-06-01"},
+            {"id": "28", "category": "Professional", "details": "Annual conference and training", "amount": 35000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "29", "category": "Tax", "details": "Income tax and professional fees", "amount": 25000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"},
+            {"id": "30", "category": "Gifts", "details": "Festival and birthday gifts", "amount": 18000, "frequency": "Annually", "needWant": "Want", "date": "2025-06-01"}
         ]
         self._next_expense_id = 36
         
@@ -113,63 +101,53 @@ class StaticDataManager:
         self.goals: List[Dict[str, Any]] = [
             {
                 "id": "1",
-                "name": "House Down Payment",
-                "targetAmount": 2000000.0,
-                "currentAmount": 500000.0,
-                "targetDate": "2026-12-31",
-                "priority": "high",
-                "category": "House",
-                "notes": "Saving for 3BHK apartment down payment"
-            },
-            {
-                "id": "2",
-                "name": "Kids Education Fund",
-                "targetAmount": 1500000.0,
-                "currentAmount": 300000.0,
-                "targetDate": "2030-06-01",
-                "priority": "high",
-                "category": "Education",
-                "notes": "Higher education fund for both kids"
-            },
-            {
-                "id": "3",
-                "name": "Dream Car",
-                "targetAmount": 800000.0,
-                "currentAmount": 150000.0,
-                "targetDate": "2025-12-31",
-                "priority": "medium",
-                "category": "Car",
-                "notes": "SUV for family trips"
-            },
-            {
-                "id": "4",
                 "name": "Emergency Fund",
-                "targetAmount": 600000.0,
-                "currentAmount": 450000.0,
+                "targetAmount": 500000.0,
+                "currentAmount": 350000.0,
                 "targetDate": "2024-12-31",
                 "priority": "high",
                 "category": "Emergency Fund",
-                "notes": "6 months of expenses as emergency fund"
+                "notes": "6 months of expenses as safety net"
+            },
+            {
+                "id": "2",
+                "name": "New Laptop Fund",
+                "targetAmount": 150000.0,
+                "currentAmount": 45000.0,
+                "targetDate": "2025-06-30",
+                "priority": "medium",
+                "category": "Other",
+                "notes": "High-end laptop for development work"
+            },
+            {
+                "id": "3",
+                "name": "Car Upgrade",
+                "targetAmount": 1200000.0,
+                "currentAmount": 280000.0,
+                "targetDate": "2026-08-15",
+                "priority": "medium",
+                "category": "Car",
+                "notes": "Upgrade to a better car with advanced features"
+            },
+            {
+                "id": "4",
+                "name": "International Certification",
+                "targetAmount": 80000.0,
+                "currentAmount": 25000.0,
+                "targetDate": "2025-03-31",
+                "priority": "high",
+                "category": "Education",
+                "notes": "AWS/Azure cloud certification and training"
             },
             {
                 "id": "5",
-                "name": "Europe Vacation",
-                "targetAmount": 400000.0,
-                "currentAmount": 80000.0,
-                "targetDate": "2025-08-15",
+                "name": "Japan Trip",
+                "targetAmount": 250000.0,
+                "currentAmount": 65000.0,
+                "targetDate": "2025-12-15",
                 "priority": "low",
                 "category": "Vacation",
-                "notes": "Family trip to Europe for 2 weeks"
-            },
-            {
-                "id": "6",
-                "name": "Retirement Corpus",
-                "targetAmount": 50000000.0,
-                "currentAmount": 8000000.0,
-                "targetDate": "2045-01-01",
-                "priority": "high",
-                "category": "Retirement",
-                "notes": "Target retirement corpus for financial independence"
+                "notes": "Solo trip to Japan for 10 days"
             }
         ]
         self._next_goal_id = 7
