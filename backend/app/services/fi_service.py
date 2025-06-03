@@ -92,3 +92,40 @@ class FIService:
             swr_percentage_used=swr_percentage,
             details=result_details
         )
+    
+    async def get_financial_summary(self) -> dict:
+        """Get a basic financial summary including net worth and asset/liability breakdown."""
+        # Fetch data from services
+        assets = await self.asset_service.get_all_assets()
+        liabilities = await self.liability_service.get_all_liabilities()
+        
+        # Calculate totals
+        total_assets = self._calculate_total_asset_value(assets)
+        total_liabilities = self._calculate_total_liabilities_value(liabilities)
+        net_worth = total_assets - total_liabilities
+        
+        # Group assets by class
+        asset_breakdown = {}
+        for asset in assets:
+            asset_class = asset.assetClass
+            if asset_class not in asset_breakdown:
+                asset_breakdown[asset_class] = 0
+            asset_breakdown[asset_class] += asset.valueINR
+        
+        # Group liabilities by type
+        liability_breakdown = {}
+        for liability in liabilities:
+            liability_type = liability.type
+            if liability_type not in liability_breakdown:
+                liability_breakdown[liability_type] = 0
+            liability_breakdown[liability_type] += liability.outstandingAmountINR
+        
+        return {
+            "net_worth": round(net_worth, 2),
+            "total_assets": round(total_assets, 2),
+            "total_liabilities": round(total_liabilities, 2),
+            "asset_breakdown": {k: round(v, 2) for k, v in asset_breakdown.items()},
+            "liability_breakdown": {k: round(v, 2) for k, v in liability_breakdown.items()},
+            "asset_count": len(assets),
+            "liability_count": len(liabilities)
+        }

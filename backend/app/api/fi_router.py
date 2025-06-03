@@ -35,6 +35,20 @@ async def calculate_financial_independence_status(
         # print(f"Error during FI calculation: {e}") 
         raise HTTPException(status_code=500, detail=f"An internal server error occurred during FI calculation: {str(e)}")
 
+@router.get("/summary")
+async def get_fi_summary(
+    fi_service: FIService = Depends(get_fi_service)
+):
+    """
+    Get a summary of current financial status including net worth and basic FI metrics.
+    """
+    try:
+        # Get basic financial summary without requiring user FI parameters
+        summary = await fi_service.get_financial_summary()
+        return summary
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting financial summary: {str(e)}")
+
 # Example of how to add more FI related endpoints in the future:
 # @router.get("/parameters-schema", response_model=UserFIParameters)
 # async def get_fi_parameters_schema():

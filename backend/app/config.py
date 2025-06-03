@@ -60,6 +60,10 @@ class Settings:
         "http://localhost:3000",
         "http://localhost:5173",
     ]
+    
+    # Database settings
+    DATABASE_URL: str = "sqlite+aiosqlite:///./financial_agent.db"
+    DATABASE_ECHO: bool = False  # Set to True for SQL query logging
 
 @lru_cache()
 def get_settings() -> Settings:
