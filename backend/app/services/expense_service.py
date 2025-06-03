@@ -1,8 +1,8 @@
 from typing import List, Optional, Union
 from ..models.expense_models import ExpenseIn, ExpenseOut
-from ..data.static_data import StaticDataManager
+from ..fixtures.sample_data import StaticDataManager
 from ..repositories import ExpenseRepository
-from ..model_converters import expense_db_to_pydantic
+from ..utils.converters import expense_db_to_pydantic
 
 class ExpenseService:
     """Service for managing expenses."""

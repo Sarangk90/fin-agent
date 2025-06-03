@@ -1,8 +1,8 @@
 from typing import List, Optional, Union
 from ..models.goal_models import GoalIn, GoalOut
-from ..data.static_data import StaticDataManager
+from ..fixtures.sample_data import StaticDataManager
 from ..repositories import GoalRepository
-from ..model_converters import goal_db_to_pydantic
+from ..utils.converters import goal_db_to_pydantic
 
 class GoalService:
     """Service for managing goals."""

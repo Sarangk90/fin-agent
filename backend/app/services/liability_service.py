@@ -1,8 +1,8 @@
 from typing import List, Optional, Union
 from ..models.liability_models import LiabilityIn, LiabilityOut
-from ..data.static_data import StaticDataManager
+from ..fixtures.sample_data import StaticDataManager
 from ..repositories import LiabilityRepository
-from ..model_converters import liability_db_to_pydantic
+from ..utils.converters import liability_db_to_pydantic
 
 class LiabilityService:
     """Service for managing liabilities."""

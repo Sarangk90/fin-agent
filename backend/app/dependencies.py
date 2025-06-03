@@ -1,7 +1,7 @@
 from functools import lru_cache
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from .data.static_data import StaticDataManager
+from .fixtures.sample_data import StaticDataManager
 from .config import Settings, get_settings
 from .database import get_db_session
 from .repositories import AssetRepository, LiabilityRepository, ExpenseRepository, GoalRepository, UserRepository

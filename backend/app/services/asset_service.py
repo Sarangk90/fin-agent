@@ -1,8 +1,8 @@
 from typing import List, Optional, Union
 from ..models.asset_models import AssetIn, AssetOut
-from ..data.static_data import StaticDataManager
+from ..fixtures.sample_data import StaticDataManager
 from ..repositories import AssetRepository
-from ..model_converters import asset_db_to_pydantic
+from ..utils.converters import asset_db_to_pydantic
 
 class AssetService:
     """Service for managing assets."""
