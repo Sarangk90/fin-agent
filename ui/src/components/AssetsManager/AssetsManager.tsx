@@ -166,42 +166,97 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
 
   const handleAdd = () => {
     openModal(
-      <AssetForm
-        initialData={{}}
-        onSubmit={async (data: any) => {
-          setIsLoading(true);
-          try {
-            await saveData('assets', data);
-            openModal(null);
-          } finally {
-            setIsLoading(false);
-          }
-        }}
-        onCancel={() => openModal(null)}
-        fields={columns}
-        darkMode={darkMode}
-      />,
+      <div className={styles.modalContent}>
+        <AssetForm
+          initialData={{}}
+          onSubmit={async (data: any) => {
+            setIsLoading(true);
+            try {
+              // Format the data before saving
+              const formattedData = {
+                ...data,
+                valueINR: parseFloat(data.valueINR) || 0,
+                purchaseValue: data.purchaseValue ? parseFloat(data.purchaseValue) : null,
+                interestRate: data.interestRate ? parseFloat(data.interestRate) : null,
+                // Convert date strings to timestamps if needed
+                purchaseDate: data.purchaseDate || null,
+                maturityDate: data.maturityDate || null,
+                // Set default values for required fields if needed
+                assetClass: data.assetClass || 'Other',
+                assetType: data.assetType || 'Other',
+                fpAssetClass: data.fpAssetClass || 'General Investment / Wealth Creation',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              };
+              
+              await saveData('assets', formattedData);
+              openModal(null);
+            } catch (error) {
+              console.error('Error saving asset:', error);
+              // You might want to show an error message to the user here
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          onCancel={() => openModal(null)}
+          fields={columns}
+          darkMode={darkMode}
+        />
+      </div>,
       'Add New Asset'
     );
   };
 
   const handleEdit = (asset: Asset) => {
     openModal(
-      <AssetForm
-        initialData={asset}
-        onSubmit={async (data: any) => {
-          setIsLoading(true);
-          try {
-            await saveData('assets', data, asset.id as string);
-            openModal(null);
-          } finally {
-            setIsLoading(false);
-          }
-        }}
-        onCancel={() => openModal(null)}
-        fields={columns}
-        darkMode={darkMode}
-      />,
+      <div className={styles.modalContent}>
+        <AssetForm
+          initialData={{
+            ...asset,
+            // Ensure dates are in the correct format for date inputs
+            purchaseDate: typeof asset.purchaseDate === 'string' 
+              ? asset.purchaseDate.split('T')[0] 
+              : undefined,
+            maturityDate: typeof asset.maturityDate === 'string' 
+              ? asset.maturityDate.split('T')[0] 
+              : undefined,
+            // Ensure numeric values are properly formatted
+            valueINR: asset.valueINR?.toString(),
+            purchaseValue: asset.purchaseValue?.toString(),
+            interestRate: asset.interestRate?.toString(),
+          }}
+          onSubmit={async (data: any) => {
+            setIsLoading(true);
+            try {
+              // Format the data before saving
+              const formattedData = {
+                ...data,
+                id: asset.id, // Ensure we keep the same ID
+                valueINR: parseFloat(data.valueINR) || 0,
+                purchaseValue: data.purchaseValue ? parseFloat(data.purchaseValue) : null,
+                interestRate: data.interestRate ? parseFloat(data.interestRate) : null,
+                // Convert date strings to timestamps if needed
+                purchaseDate: data.purchaseDate || null,
+                maturityDate: data.maturityDate || null,
+                // Preserve creation date, update modification date
+                createdAt: asset.createdAt || new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              };
+              
+              await saveData('assets', formattedData, asset.id);
+              openModal(null);
+            } catch (error) {
+              console.error('Error updating asset:', error);
+              // You might want to show an error message to the user here
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          onCancel={() => openModal(null)}
+          fields={columns}
+          darkMode={darkMode}
+        />
+      </div>,
       'Edit Asset'
     );
   };

@@ -1,25 +1,47 @@
 import React from 'react';
-import { FormField } from './AssetsManager';
+import styles from './AssetForm.module.scss';
 
-type FormData = Record<string, any>;
+type FormDataObject = Record<string, any>;
 
-export interface AssetFormProps {
-  initialData?: FormData;
-  onSubmit: (data: FormData) => Promise<void> | void;
+export interface FormField {
+  key: string;
+  name: string;
+  label: string;
+  type: 'text' | 'number' | 'select' | 'textarea' | 'date';
+  options?: Array<{value: string; label: string; group?: string}>;
+  required?: boolean;
+  placeholder?: string;
+  description?: string;
+  group?: string;
+  min?: number | string;
+  max?: number | string;
+  step?: string;
+  prefix?: string;
+  suffix?: string;
+  error?: string;
+  className?: string;
+  showIf?: (values: Record<string, any>) => boolean;
+  [key: string]: any; // Allow additional properties
+}
+
+interface AssetFormProps {
+  initialData?: FormDataObject;
+  onSubmit: (data: Record<string, any>) => Promise<void> | void;
   onCancel: () => void;
   darkMode: boolean;
   fields: FormField[];
+  isLoading?: boolean;
 }
 
-const getInitialFormData = (fields: FormField[], initialData: FormData = {}): FormData => {
-  return fields.reduce((acc, field) => {
+const getInitialFormData = (fields: FormField[], initialData: FormDataObject = {}): FormDataObject => {
+  return fields.reduce<FormDataObject>((acc, field) => {
     if (initialData[field.name] !== undefined) {
       acc[field.name] = initialData[field.name];
     } else if (field.required) {
       acc[field.name] = field.type === 'number' ? 0 : '';
     }
     return acc;
-  }, {} as FormData);
+  }, {});
 };
 
 const AssetForm: React.FC<AssetFormProps> = ({
@@ -27,10 +49,11 @@ const AssetForm: React.FC<AssetFormProps> = ({
   onSubmit,
   onCancel,
   darkMode,
-  fields
+  fields,
+  isLoading = false
 }) => {
-  const [formData, setFormData] = React.useState<FormData>(
-    () => getInitialFormData(fields, initialData)
+  const [formData, setFormData] = React.useState<FormDataObject>(
+    getInitialFormData(fields, initialData || {})
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -49,78 +72,110 @@ const AssetForm: React.FC<AssetFormProps> = ({
     await onSubmit(formData);
   };
 
+  // Render fields in two columns
+  const renderFieldsInColumns = () => {
+    // Filter out fields that don't meet their showIf condition
+    const visibleFields = fields.filter(field => 
+      !field.showIf || field.showIf(formData)
+    );
+    
+    // Split fields into two columns
+    const midPoint = Math.ceil(visibleFields.length / 2);
+    const firstColumn = visibleFields.slice(0, midPoint);
+    const secondColumn = visibleFields.slice(midPoint);
+    
+    return (
+      <div className={styles.fieldsContainer}>
+        <div className={styles.column}>
+          {firstColumn.map(field => renderField(field))}
+        </div>
+        <div className={styles.column}>
+          {secondColumn.map(field => renderField(field))}
+        </div>
+      </div>
+    );
+  };
+
   const renderField = (field: FormField) => {
+    // Skip rendering if showIf condition is not met
+    if (field.showIf && !field.showIf(formData)) {
+      return null;
+    }
+
     const commonProps = {
       id: field.name,
       name: field.name,
       value: formData[field.name] ?? '',
       onChange: handleChange,
       required: field.required,
-      placeholder: field.placeholder,
-      className: `mt-1 block w-full rounded-md ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'} shadow-sm focus:border-blue-500 focus:ring-blue-500`,
+      placeholder: field.placeholder || `Enter ${field.label.toLowerCase()}`,
+      className: `${styles.input} ${field.error ? styles.inputError : ''}`,
+      disabled: isLoading,
     };
 
-    switch (field.type) {
-      case 'select':
-        return (
-          <select {...commonProps}>
-            <option value="">Select {field.label}</option>
-            {field.options?.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        );
-      case 'number':
-        return (
-          <input
-            type="number"
-            {...commonProps}
-            step={field.name === 'valueINR' ? '1' : 'any'}
-          />
-        );
-      case 'textarea':
-        return <textarea {...commonProps} rows={3} />;
-      default:
-        return <input type={field.type} {...commonProps} />;
-    }
+    const fieldClasses = `${styles.fieldItem} ${field.className || ''}`;
+
+    const fieldContent = (() => {
+      switch (field.type) {
+        case 'select':
+          return (
+            <select {...commonProps} className={`${styles.select} ${field.error ? styles.inputError : ''}`}>
+              <option value="">Select {field.label}</option>
+              {field.options?.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          );
+        case 'number':
+          return (
+            <input
+              type="number"
+              {...commonProps}
+              step={field.name === 'valueINR' ? '1' : 'any'}
+              className={`${styles.input} ${field.error ? styles.inputError : ''}`}
+            />
+          );
+        case 'textarea':
+          return <textarea {...commonProps} rows={3} className={`${styles.textarea} ${field.error ? styles.inputError : ''}`} />;
+        default:
+          return <input type={field.type} {...commonProps} className={styles.input} />;
+      }
+    })();
+
+    return (
+      <div className={fieldClasses}>
+        <label htmlFor={field.name} className={styles.label}>
+          {field.label}
+          {field.required && <span className={styles.required}>*</span>}
+        </label>
+        {fieldContent}
+        {field.error && <div className={styles.error}>{field.error}</div>}
+      </div>
+    );
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {fields.map((field) => (
-          <div key={field.name} className="space-y-2">
-            <label
-              htmlFor={field.name}
-              className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
-            >
-              {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-            </label>
-            {renderField(field)}
-          </div>
-        ))}
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <div className={styles.grid}>
+        {renderFieldsInColumns()}
       </div>
-      
-      <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className={styles.footer}>
         <button
           type="button"
           onClick={onCancel}
-          className={`px-4 py-2 text-sm font-medium rounded-md ${
-            darkMode
-              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+          className={`${styles.button} ${styles.cancelButton}`}
+          disabled={isLoading}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className={`${styles.button} ${styles.saveButton}`}
+          disabled={isLoading}
         >
-          Save
+          {isLoading ? 'Saving...' : 'Save'}
         </button>
       </div>
     </form>
