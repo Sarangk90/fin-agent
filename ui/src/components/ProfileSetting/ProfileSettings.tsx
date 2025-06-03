@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, User, Calendar, Percent, DollarSign, BookOpen, Edit2, X, Check } from 'lucide-react';
+import styles from './ProfileSettings.module.scss';
 
 interface UserProfile {
   currentAge: number;
@@ -63,9 +64,23 @@ const InputField: React.FC<InputFieldProps> = ({
   </div>
 );
 
+const defaultProfile: UserProfile = {
+  currentAge: 30,
+  lifeExpectancy: 80,
+  generalInflation: 6,
+  educationInflation: 10,
+  usdToInr: 0 // This will be updated by the parent component
+};
+
 const ProfileSettings: React.FC<ProfileSettingsProps> = ({ userProfile, saveUserProfile, darkMode }) => {
-  const [profileData, setProfileData] = useState<UserProfile>(userProfile);
+  const [profileData, setProfileData] = useState<UserProfile>({
+    ...defaultProfile,
+    ...userProfile, // Override defaults with any provided userProfile values
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     setProfileData(userProfile);
@@ -73,7 +88,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ userProfile, saveUser
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const numericValue = parseFloat(value) || 0;
+    // Remove any non-numeric characters except decimal point
+    const numericValue = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
     setProfileData(prev => ({
       ...prev,
       [name]: numericValue
@@ -81,6 +97,15 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ userProfile, saveUser
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  // Format value for display (handles undefined and adds % for inflation fields)
+  const formatDisplayValue = (name: string, value: number | undefined): string => {
+    if (value === undefined || value === null) return '';
+    if (name.includes('Inflation')) {
+      return value.toString();
+    }
+    return value.toString();
   };
 
   const validateProfile = () => {
@@ -107,76 +132,173 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ userProfile, saveUser
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateProfile()) {
-      await saveUserProfile(profileData);
+      setIsSaving(true);
+      try {
+        await saveUserProfile(profileData);
+        setSaveSuccess(true);
+        setIsEditing(false);
+        // Hide success message after 3 seconds
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } catch (error) {
+        console.error('Error saving profile:', error);
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
+  const handleEdit = () => {
+    setIsEditing(true);
+    setSaveSuccess(false);
+  };
+
+  const handleCancel = () => {
+    setProfileData(userProfile);
+    setErrors({});
+    setIsEditing(false);
+  };
+
   return (
-    <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-lg`}>
-      <h2 className="text-3xl font-semibold mb-6">User Profile & Settings</h2>
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
-        <InputField
-          id="currentAge"
-          label="Current Age (Years)"
-          type="number"
-          value={profileData.currentAge}
-          onChange={handleChange}
-          darkMode={darkMode}
-          required
-          error={errors.currentAge}
-        />
-        <InputField
-          id="lifeExpectancy"
-          label="Life Expectancy (Years)"
-          type="number"
-          value={profileData.lifeExpectancy}
-          onChange={handleChange}
-          darkMode={darkMode}
-          required
-          error={errors.lifeExpectancy}
-        />
-        <InputField
-          id="generalInflation"
-          label="General Inflation Rate (%)"
-          type="number"
-          step="0.1"
-          value={profileData.generalInflation}
-          onChange={handleChange}
-          darkMode={darkMode}
-          required
-          error={errors.generalInflation}
-        />
-        <InputField
-          id="educationInflation"
-          label="Education Inflation Rate (%)"
-          type="number"
-          step="0.1"
-          value={profileData.educationInflation}
-          onChange={handleChange}
-          darkMode={darkMode}
-          required
-          error={errors.educationInflation}
-        />
-        <InputField
-          id="usdToInr"
-          label="USD to INR Exchange Rate"
-          type="number"
-          step="0.01"
-          value={profileData.usdToInr}
-          onChange={handleChange}
-          darkMode={darkMode}
-          required
-          error={errors.usdToInr}
-        />
-        
-        <div className="pt-2">
-          <button
-            type="submit"
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            <CheckCircle size={16} />
-            <span>Save Profile Settings</span>
-          </button>
+    <div className={`${styles.profileContainer} ${darkMode ? 'dark' : 'light'}`}>
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <h2>Profile Settings</h2>
+          {!isEditing ? (
+            <button 
+              onClick={handleEdit}
+              className={styles.editButton}
+              type="button"
+            >
+              <Edit2 size={16} className={styles.buttonIcon} />
+              <span>Edit</span>
+            </button>
+          ) : (
+            <div className={styles.buttonGroup}>
+              <button 
+                onClick={handleCancel}
+                className={`${styles.button} ${styles.cancelButton}`}
+                type="button"
+                disabled={isSaving}
+              >
+                <X size={16} className={styles.buttonIcon} />
+                <span>Cancel</span>
+              </button>
+              <button 
+                type="submit" 
+                form="profileForm"
+                className={`${styles.button} ${styles.saveButton}`}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <span>Saving...</span>
+                ) : (
+                  <>
+                    <Check size={16} className={styles.buttonIcon} />
+                    <span>Save Changes</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+        <p>Manage your personal and financial preferences</p>
+        {saveSuccess && (
+          <div className={styles.successMessage}>
+            <CheckCircle size={18} />
+            <span>Profile updated successfully!</span>
+          </div>
+        )}
+      </div>
+      
+      <form id="profileForm" onSubmit={handleSubmit} className={`${styles.form} ${!isEditing ? styles.viewMode : ''}`}>
+        <div className={styles.formGrid}>
+          <div className={styles.inputField}>
+            <label htmlFor="currentAge">
+              Current Age <span className={styles.required}>*</span>
+            </label>
+            <div className={styles.inputWrapper}>
+              <User className={styles.inputIcon} size={18} />
+              <input
+                type="number"
+                id="currentAge"
+                name="currentAge"
+                value={profileData.currentAge}
+                onChange={handleChange}
+                min="18"
+                max="120"
+                required
+                className={`${errors.currentAge ? styles.errorInput : ''} ${!isEditing ? styles.disabledInput : ''}`}
+                disabled={!isEditing}
+                readOnly={!isEditing}
+              />
+            </div>
+            {errors.currentAge && <span className={styles.error}>{errors.currentAge}</span>}
+          </div>
+          
+          <div className={styles.inputField}>
+            <label htmlFor="lifeExpectancy">
+              Life Expectancy <span className={styles.required}>*</span>
+            </label>
+            <div className={styles.inputWrapper}>
+              <Calendar className={styles.inputIcon} size={18} />
+              <input
+                type="number"
+                id="lifeExpectancy"
+                name="lifeExpectancy"
+                value={profileData.lifeExpectancy}
+                onChange={handleChange}
+                min={profileData.currentAge + 1}
+                max="120"
+                required
+                className={errors.lifeExpectancy ? styles.errorInput : ''}
+              />
+            </div>
+            {errors.lifeExpectancy && <span className={styles.error}>{errors.lifeExpectancy}</span>}
+          </div>
+          
+          <div className={styles.inputField}>
+            <label htmlFor="generalInflation">
+              General Inflation <span className={styles.required}>*</span>
+            </label>
+            <div className={styles.inputWrapper}>
+              <Percent className={styles.inputIcon} size={18} />
+              <input
+                type="number"
+                id="generalInflation"
+                name="generalInflation"
+                value={formatDisplayValue('generalInflation', profileData.generalInflation)}
+                onChange={handleChange}
+                step="0.1"
+                min="0"
+                max="50"
+                required
+                className={errors.generalInflation ? styles.errorInput : ''}
+              />
+            </div>
+            {errors.generalInflation && <span className={styles.error}>{errors.generalInflation}</span>}
+          </div>
+          
+          <div className={styles.inputField}>
+            <label htmlFor="educationInflation">
+              Education Inflation <span className={styles.required}>*</span>
+            </label>
+            <div className={styles.inputWrapper}>
+              <BookOpen className={styles.inputIcon} size={18} />
+              <input
+                type="number"
+                id="educationInflation"
+                name="educationInflation"
+                value={formatDisplayValue('educationInflation', profileData.educationInflation)}
+                onChange={handleChange}
+                step="0.1"
+                min="0"
+                max="50"
+                required
+                className={errors.educationInflation ? styles.errorInput : ''}
+              />
+            </div>
+            {errors.educationInflation && <span className={styles.error}>{errors.educationInflation}</span>}
+          </div>
         </div>
       </form>
     </div>

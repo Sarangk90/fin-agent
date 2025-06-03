@@ -138,9 +138,11 @@
   
   // Select specific styles
   .select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
+    -webkit-appearance: none; // For Safari and older Chrome/Edge
+    -moz-appearance: none;    // For Firefox
+    -ms-appearance: none;     // For Internet Explorer
+    -o-appearance: none;      // For older Opera
+    appearance: none;         // Standard
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.5rem center;
     background-repeat: no-repeat;
@@ -160,11 +162,11 @@
   
   // Remove number input spinners
   .input[type='number'] {
-    -moz-appearance: textfield;
+    -moz-appearance: textfield; // Firefox
     
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
+      -webkit-appearance: none; // WebKit/Blink
       margin: 0;
     }
   }
@@ -217,30 +219,6 @@
     }
   }
   
-  .spinner {
-    animation: spin 1s linear infinite;
-    width: 1rem;
-    height: 1rem;
-    margin-right: 0.5rem;
-    
-    circle {
-      opacity: 0.25;
-    }
-    
-    path {
-      opacity: 0.75;
-    }
-  }
-  
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
   .cancelButton {
     background-color: transparent;
     color: var(--text-secondary);
@@ -281,37 +259,28 @@
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
     }
   }
-}
-
-// Dark mode styles
-[data-theme='dark'] {
-  --border-color: var(--border-color-dark);
-  --text-primary: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --background-color: var(--background-dark);
-  --background-secondary: var(--background-secondary-dark);
   
-  .input, .select, .textarea {
-    background-color: #1f2937;
-    border-color: #374151;
-    color: #f3f4f6;
+  .spinner {
+    animation: spin 1s linear infinite;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
     
-    &::placeholder {
-      color: #9ca3af;
+    circle {
+      opacity: 0.25;
+    }
+    
+    path {
+      opacity: 0.75;
     }
   }
   
-  .select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  }
-  
-  .cancelButton {
-    background-color: #374151;
-    color: #f3f4f6;
-    border-color: #4b5563;
-    
-    &:hover:not(:disabled) {
-      background-color: #4b5563;
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 }

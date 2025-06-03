@@ -86,9 +86,9 @@ const Layout: React.FC<LayoutProps> = ({ children, darkMode }) => {
 
       {/* Main Content Area */}
       <div className={styles.mainContent}>
-        <header className={styles.header}>
+        {/* <header className={styles.header}>
           <h2 className={styles.pageTitle}>{currentPage}</h2>
-        </header>
+        </header> */}
         <main className={styles.content}>
           {children}
         </main>

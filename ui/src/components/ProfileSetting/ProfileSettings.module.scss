@@ -1,0 +1,403 @@
+.profileContainer {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  
+  :global(.dark) & {
+    background-color: #1e293b;
+    color: #f8fafc;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  &.light {
+    background-color: #ffffff;
+    color: #1e293b;
+  }
+}
+
+.header {
+  margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+  
+  .headerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: #3b82f6; // Fallback for browsers that don't support text-fill-color
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    display: inline-block;
+  }
+  
+  p {
+    color: #64748b;
+    font-size: 1.1rem;
+    
+    :global(.dark) & {
+      color: #94a3b8;
+    }
+  }
+}
+
+.form {
+  width: 100%;
+  
+  &.viewMode {
+    .inputField {
+      margin-bottom: 1rem;
+      
+      label {
+        margin-bottom: 0.25rem;
+        font-size: 0.875rem;
+        color: #64748b;
+        
+        :global(.dark) & {
+          color: #94a3b8;
+        }
+      }
+      
+      .inputWrapper {
+        input {
+          background-color: transparent;
+          border: 1px solid transparent;
+          padding-left: 0;
+          cursor: default;
+          
+          &:focus {
+            box-shadow: none;
+          }
+        }
+        
+        .inputIcon {
+          display: none;
+        }
+      }
+    }
+  }
+  
+  .formGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem 2rem;
+    }
+  }
+}
+
+.inputField {
+  animation: fadeIn 0.3s ease-out forwards;
+  opacity: 0;
+  margin: 0 0 1.5rem 0;
+  width: 50%;
+  
+  // Apply staggered animation delay
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: $i * 0.05s;
+    }
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    color: #334155;
+    
+    :global(.dark) & {
+      color: #e2e8f0;
+    }
+    
+    .required {
+      color: #ef4444;
+      margin-left: 0.25rem;
+    }
+  }
+  
+  .inputWrapper {
+    position: relative;
+    width: 100%;
+    
+    input {
+      width: 100%;
+      padding: 0.75rem 2.75rem 0.75rem 2.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: all 0.2s ease;
+      background-color: #f8fafc;
+      color: #1e293b;
+      min-width: 0; // Prevents input from overflowing container
+      
+      &[name*="Inflation"] {
+        padding-right: 2.5rem;
+      }
+      
+      &:disabled {
+        background-color: #f8fafc;
+        color: #1e293b;
+        cursor: not-allowed;
+        
+        :global(.dark) & {
+          background-color: #1e293b;
+          color: #f8fafc;
+        }
+      }
+      
+      :global(.dark) & {
+        background-color: #334155;
+        border-color: #475569;
+        color: #f8fafc;
+      }
+      
+      &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+      
+      &[type='number'] {
+        appearance: textfield;
+        -moz-appearance: textfield;
+        
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          appearance: none;
+          -webkit-appearance: none;
+          margin: 0;
+        }
+      }
+    }
+    
+    .inputIcon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      width: 1.25rem;
+      height: 1.25rem;
+      pointer-events: none;
+      
+      // Percentage symbol for inflation inputs
+      & + input[name*="Inflation"] + .percentageSymbol {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-weight: 500;
+        pointer-events: none;
+        
+        :global(.dark) & {
+          color: #94a3b8;
+        }
+      }
+      
+      :global(.dark) & {
+        color: #94a3b8;
+      }
+    }
+  }
+  
+  .error {
+    color: #ef4444;
+    font-size: 0.8125rem;
+    margin-top: 0.35rem;
+    display: block;
+  }
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 0.5rem;
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .buttonIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.editButton {
+  @extend .button;
+  background: #f1f5f9;
+  color: #334155;
+  
+  :global(.dark) & {
+    background: #334155;
+    color: #f8fafc;
+  }
+  
+  &:hover {
+    background: #e2e8f0;
+    
+    :global(.dark) & {
+      background: #475569;
+    }
+  }
+}
+
+.saveButton {
+  @extend .button;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: white;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.cancelButton {
+  @extend .button;
+  background: #f8fafc;
+  color: #64748b;
+  margin-right: 0.75rem;
+  
+  :global(.dark) & {
+    background: #334155;
+    color: #94a3b8;
+  }
+  
+  &:hover {
+    background: #f1f5f9;
+    
+    :global(.dark) & {
+      background: #3e4c5e;
+    }
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+}
+
+.successMessage {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.5rem;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  
+  :global(.dark) & {
+    background-color: #052e16;
+    border-color: #166534;
+    color: #86efac;
+  }
+  
+  svg {
+    color: #22c55e;
+  }
+}
+
+.submitButton {
+  margin-top: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0,0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .buttonIcon {
+    margin-right: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+// Animation for form elements
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Apply animation to form elements
+.form {
+  .inputField {
+    animation: fadeIn 0.3s ease-out forwards;
+    opacity: 0;
+    
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        animation-delay: $i * 0.05s;
+      }
+    }
+  }
+}

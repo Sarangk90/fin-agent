@@ -1,23 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
+import { FormField } from '../../types/form';
 import ExpenseForm from './ExpenseForm';
 import styles from './ExpensesManager.module.scss';
 
-export interface FormField {
+export interface DisplayColumn {
   key: string;
-  name: string;
   label: string;
-  type: 'text' | 'number' | 'select' | 'textarea' | 'date';
-  options?: Array<{value: string; label: string}>;
-  required?: boolean;
-  placeholder?: string;
-  step?: string;
-  min?: number | string;
-  max?: number | string;
-  [key: string]: any;
+  align?: 'left' | 'right' | 'center';
 }
 
-export interface Expense {
+interface Expense {
   id: string;
   category: string;
   details?: string;
@@ -68,7 +61,7 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
   
   const columns: FormField[] = useMemo(() => [
     { 
-      key: 'category', 
+      key: 'category',
       name: 'category',
       label: 'Category', 
       type: 'select', 
@@ -86,25 +79,27 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
         { value: 'Personal Care', label: 'Personal Care' },
         { value: 'Other', label: 'Other' }
       ]
-    },
+    } as const,
     { 
-      key: 'details', 
+      key: 'details',
       name: 'details',
       label: 'Details', 
       type: 'textarea', 
-      placeholder: 'e.g., Groceries from store' 
-    },
+      placeholder: 'e.g., Groceries from store',
+      required: false
+    } as const,
     { 
-      key: 'amount', 
+      key: 'amount',
       name: 'amount',
       label: 'Amount', 
       type: 'number', 
       placeholder: '0.00', 
       required: true,
-      step: '0.01'
-    },
+      step: '0.01',
+      min: 0
+    } as const,
     {
-      key: 'frequency', 
+      key: 'frequency',
       name: 'frequency',
       label: 'Frequency', 
       type: 'select', 
@@ -116,9 +111,9 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
         { value: 'Semi-Annually', label: 'Semi-Annually' },
         { value: 'Annually', label: 'Annually' },
       ]
-    },
+    } as const,
     {
-      key: 'needWant', 
+      key: 'needWant',
       name: 'needWant',
       label: 'Need/Want', 
       type: 'select', 
@@ -127,22 +122,26 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
         { value: 'Need', label: 'Need' },
         { value: 'Want', label: 'Want' },
       ]
-    },
+    } as const,
     { 
-      key: 'date', 
+      key: 'date',
       name: 'date',
       label: 'Date', 
       type: 'date', 
       required: true 
-    },
+    } as const,
   ], []);
 
-  const displayColumns = [
-    ...columns,
+  const displayColumns: DisplayColumn[] = [
+    ...columns.map(col => ({
+      key: col.key,
+      label: col.label,
+      align: (col.type === 'number' ? 'right' : 'left') as 'left' | 'right' | 'center'
+    })),
     { 
       key: 'annualAmount', 
       label: 'Annual Amount',
-      align: 'right' as const
+      align: 'right'
     },
   ];
   
@@ -160,13 +159,17 @@ const ExpensesManager: React.FC<ExpensesManagerProps> = ({
     return widths[key] || 'minmax(150px, 1fr)';
   };
 
-  const renderRow = (item: Expense, cols: FormField[]) => {
-    return displayColumns.map(col => {
-      const value = col.key === 'amount' 
-        ? formatCurrency(item[col.key] as number)
-        : col.key === 'annualAmount'
-          ? formatCurrency(calculateAnnualAmount(item.amount, item.frequency))
-          : item[col.key as keyof Expense] || '-';
+  const renderRow = (item: Expense, cols: DisplayColumn[]) => {
+    return cols.map(col => {
+      let value: React.ReactNode = '-';
+      
+      if (col.key === 'amount') {
+        value = formatCurrency(item.amount);
+      } else if (col.key === 'annualAmount') {
+        value = formatCurrency(calculateAnnualAmount(item.amount, item.frequency));
+      } else if (col.key in item) {
+        value = item[col.key] || '-';
+      }
       
       return (
         <td 
