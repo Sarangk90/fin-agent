@@ -59,6 +59,13 @@ This script will:
 - Create a default user
 - Provide next steps
 
+**Additional setup options:**
+```bash
+python setup_dev.py --verify  # Verify existing database setup
+python setup_dev.py --reset   # Reset database with fresh data
+python setup_dev.py --help    # Show all available options
+```
+
 ### 🏃‍♂️ Running the Application
 
 After running the setup script:
