@@ -108,6 +108,71 @@ class StaticDataManager:
             {"id": "35", "category": "Insurance", "details": "Family Medical Insurance", "amount": 10000, "frequency": "Annually", "needWant": "Need", "date": "2025-06-01"}
         ]
         self._next_expense_id = 36
+        
+        # Goal data
+        self.goals: List[Dict[str, Any]] = [
+            {
+                "id": "1",
+                "name": "House Down Payment",
+                "targetAmount": 2000000.0,
+                "currentAmount": 500000.0,
+                "targetDate": "2026-12-31",
+                "priority": "high",
+                "category": "House",
+                "notes": "Saving for 3BHK apartment down payment"
+            },
+            {
+                "id": "2",
+                "name": "Kids Education Fund",
+                "targetAmount": 1500000.0,
+                "currentAmount": 300000.0,
+                "targetDate": "2030-06-01",
+                "priority": "high",
+                "category": "Education",
+                "notes": "Higher education fund for both kids"
+            },
+            {
+                "id": "3",
+                "name": "Dream Car",
+                "targetAmount": 800000.0,
+                "currentAmount": 150000.0,
+                "targetDate": "2025-12-31",
+                "priority": "medium",
+                "category": "Car",
+                "notes": "SUV for family trips"
+            },
+            {
+                "id": "4",
+                "name": "Emergency Fund",
+                "targetAmount": 600000.0,
+                "currentAmount": 450000.0,
+                "targetDate": "2024-12-31",
+                "priority": "high",
+                "category": "Emergency Fund",
+                "notes": "6 months of expenses as emergency fund"
+            },
+            {
+                "id": "5",
+                "name": "Europe Vacation",
+                "targetAmount": 400000.0,
+                "currentAmount": 80000.0,
+                "targetDate": "2025-08-15",
+                "priority": "low",
+                "category": "Vacation",
+                "notes": "Family trip to Europe for 2 weeks"
+            },
+            {
+                "id": "6",
+                "name": "Retirement Corpus",
+                "targetAmount": 50000000.0,
+                "currentAmount": 8000000.0,
+                "targetDate": "2045-01-01",
+                "priority": "high",
+                "category": "Retirement",
+                "notes": "Target retirement corpus for financial independence"
+            }
+        ]
+        self._next_goal_id = 7
     
     # Asset operations
     def get_all_assets(self) -> List[Dict[str, Any]]:
@@ -183,3 +248,28 @@ class StaticDataManager:
         original_length = len(self.expenses)
         self.expenses = [expense for expense in self.expenses if expense["id"] != expense_id]
         return len(self.expenses) < original_length
+    
+    # Goal operations
+    def get_all_goals(self) -> List[Dict[str, Any]]:
+        return self.goals.copy()
+    
+    def get_goal_by_id(self, goal_id: str) -> Optional[Dict[str, Any]]:
+        return next((goal for goal in self.goals if goal["id"] == goal_id), None)
+    
+    def create_goal(self, goal_data: Dict[str, Any]) -> Dict[str, Any]:
+        new_goal = {**goal_data, "id": str(self._next_goal_id)}
+        self.goals.append(new_goal)
+        self._next_goal_id += 1
+        return new_goal
+    
+    def update_goal(self, goal_id: str, goal_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        for i, goal in enumerate(self.goals):
+            if goal["id"] == goal_id:
+                self.goals[i] = {**goal, **goal_data, "id": goal_id}
+                return self.goals[i]
+        return None
+    
+    def delete_goal(self, goal_id: str) -> bool:
+        original_length = len(self.goals)
+        self.goals = [goal for goal in self.goals if goal["id"] != goal_id]
+        return len(self.goals) < original_length

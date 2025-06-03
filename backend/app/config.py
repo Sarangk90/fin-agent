@@ -32,6 +32,16 @@ class Settings:
         "Need", "Want"
     ]
     
+    # Goal validation constants
+    ALLOWED_GOAL_PRIORITIES: List[str] = [
+        "high", "medium", "low"
+    ]
+    
+    ALLOWED_GOAL_CATEGORIES: List[str] = [
+        "House", "Car", "Education", "Wedding", "Vacation", 
+        "Retirement", "Emergency Fund", "Investment", "Other"
+    ]
+    
     # FI calculation constants
     DEFAULT_GOALS_PLACEHOLDER: float = 102863884.0
     DEFAULT_SWR_PERCENTAGE: float = 4.0

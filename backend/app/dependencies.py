@@ -5,6 +5,7 @@ from .config import Settings, get_settings
 from .services.asset_service import AssetService
 from .services.liability_service import LiabilityService
 from .services.expense_service import ExpenseService
+from .services.goal_service import GoalService
 from .services.fi_service import FIService
 
 @lru_cache()
@@ -34,6 +35,12 @@ def get_expense_service(
 ) -> ExpenseService:
     """Get the expense service with injected dependencies."""
     return ExpenseService(data_manager)
+
+def get_goal_service(
+    data_manager: StaticDataManager = Depends(get_data_manager)
+) -> GoalService:
+    """Get the goal service with injected dependencies."""
+    return GoalService(data_manager)
 
 def get_fi_service(
     asset_service: AssetService = Depends(get_asset_service),
