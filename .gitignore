@@ -34,5 +34,7 @@ dist-ssr
 *.sln
 *.sw?
 
+
+*.db
 package-lock.json
 venv
