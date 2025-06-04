@@ -5,12 +5,12 @@ from ..models.fi_models import FIRequestData, FinancialIndependenceResult, UserF
 from ..dependencies import get_fi_service
 
 router = APIRouter(
-    prefix="/fi", # All routes in this router will start with /fi
-    tags=["Financial Independence"], # Tag for API documentation
+    prefix="/api/fi",  # Align with other API routes
+    tags=["Financial Independence"],
 )
 
-@router.post("/calculate-status", response_model=FinancialIndependenceResult)
-async def calculate_financial_independence_status(
+@router.post("/calculate", response_model=FinancialIndependenceResult)
+async def calculate_financial_independence(
     request_data: FIRequestData,
     fi_service: FIService = Depends(get_fi_service)
 ) -> FinancialIndependenceResult:
@@ -54,3 +54,4 @@ async def get_fi_summary(
 # async def get_fi_parameters_schema():
 #     """Returns the schema for User FI Parameters."""
 #     return UserFIParameters.model_json_schema()
+

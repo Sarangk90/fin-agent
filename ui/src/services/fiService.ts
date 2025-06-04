@@ -1,8 +1,8 @@
 import { UserFIParameters, FinancialIndependenceResult } from '../types/fiTypes';
 
 // Consistent with other API calls in App.tsx, using the full direct URL.
-// The backend FI router has a prefix /fi and the endpoint is /calculate-status.
-const API_ENDPOINT = 'http://localhost:5001/fi/calculate-status';
+// The backend FI router now uses the /api/fi prefix and the endpoint is /calculate.
+const API_ENDPOINT = 'http://localhost:5001/api/fi/calculate';
 
 export async function calculateFIStatus(
     params: UserFIParameters

@@ -34,4 +34,6 @@ class FinancialIndependenceResult(BaseModel):
 
 # Model for the request body - only UserFIParameters are needed from the client
 class FIRequestData(BaseModel):
-    user_fi_parameters: UserFIParameters 
+    """Parameters supplied by the client for FI calculations."""
+    user_fi_parameters: UserFIParameters
+
